@@ -36,3 +36,67 @@
     transform: rotate(360deg);
   }
 }
+
+.svg-plot, .canvas-plot {
+  position: absolute;
+}
+
+.tools button {
+  background-color: #e7e7e7;
+  border: none;
+  color: #000000;
+  cursor: pointer;
+  display: block;
+  margin-bottom: 5px;
+  padding: 5px 10px;
+  outline: 0;
+}
+
+.tools button.active {
+  background-color: #13a613;
+}
+
+.code-block {
+  background-color: #f6f6f6;
+  margin-bottom: 2%;
+}
+
+.card-body {
+  box-shadow: 0 0 5px #888;
+  border: 5px solid black;
+}
+
+.code-block-header {
+  background-color: #282c35;
+  color: white;
+  /*border-radius: 15px 15px 0px 0px;*/
+  padding-top: 10px;
+  overflow:hidden;
+}
+
+.code-text {
+  white-space: pre;
+  text-align: left;
+  margin-left: 3%;
+  overflow-x: scroll;
+}
+
+.highlighted-code {
+  background-color: green;
+  color: white!important;
+}
+
+.brush-action {
+  border-radius: 15px;
+  /*box-shadow: 0 0 0.5px #888;*/
+  background-color: black;
+  color: white;
+}
+
+.brush-action-active {
+  background-color: gray;
+}
+
+.scatter-container {
+
+}

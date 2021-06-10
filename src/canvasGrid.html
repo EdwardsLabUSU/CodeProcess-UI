@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>d3 and canvas</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+    <style type="text/css">
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+
+        }
+
+        canvas {
+            border:  1px dotted #ccc;
+        }
+
+        #text-explain {
+            display: inline-block;
+            font-size: 0.75em;
+            margin-bottom: 1em;
+        }
+
+        .alert {
+            color: tomato;
+        }
+
+    </style>
+
+</head>
+<body>
+
+<h3>Coloured grids</h3>
+<input type="text" id="text-input" value="5000">
+<div id="text-explain">...takes numbers between 1 and 10k</div>
+<div id="container"></div>
+
+
+<script>
+    var data = [];
+    var value = 10;
+
+
+
+
+    console.log(data)
+
+    var width = 750,
+        height = 400;
+
+    var canvas = d3.select("#container")
+        .append("canvas")
+        .attr("width", width)
+        .attr("height", height);
+
+    var context = canvas.node().getContext("2d");
+
+    var rows = 800;
+    var columns = 200;
+
+    d3.range(rows).forEach(function(row){
+        d3.range(columns).forEach(function (column){
+            data.push({
+                value: 1,
+                row: row,
+                column: column
+            })
+            // data.push({value: el }) //The push() method adds new items to the end of an array, and returns the new length.
+        })
+    })
+
+
+    // console.log(data)
+    var customBase = document.createElement("custom");
+    var custom = d3.select(customBase); // This is your SVG replacement and the parent of all other elements
+
+    var groupSpacing = 0;
+    var cellSpacing = 0.5;
+    var cellSize = Math.floor((width) / columns)- cellSpacing;
+    var cellHeight =  Math.floor((height) / rows);
+
+    databind(data); // ...then update the databind function
+
+    var t = d3.timer(function(elapsed) {
+        draw();
+        if (elapsed > 300) t.stop();
+    });
+
+    function databind(data) {
+        // Bind data to custom elements.
+
+        // Get a scale for the colours - not essential but nice.
+        colourScale = d3.scaleSequential(d3.interpolateSpectral)
+            .domain(d3.extent(data, function(d){
+                return d.value;
+            }))
+
+        var join = custom.selectAll("custom.rect") // join your data to the ‘replacement-SVG’ you called custom
+            .data(data)
+
+        var enterSel = join.enter()
+            .append("custom")
+            .attr("class", "rect")
+            .attr("x", function(d){
+                // console.log(d)
+                return (cellSpacing + cellSize) * d.column
+                var x0 = Math.floor(i / 100) % 10
+                var x1 = Math.floor(i % columns);
+                return groupSpacing * x0 + (cellSpacing + cellSize) * (x1 + x0 * 1);
+            })
+            .attr("y", function(d, i){
+                return (cellSpacing + cellSize) + d.row
+                var y0 = Math.floor(i / 1000)
+                var y1 = Math.floor(i % 100 / 10)
+                console.log("Y-axis: ", y0, y1)
+                return groupSpacing * y0 + (cellSpacing + cellSize) * (y1 + y0 * 1)
+            })
+            .attr("width", 0)
+            .attr("height", cellHeight)
+
+        join.merge(enterSel)
+            .transition()
+            .attr("width", cellSize)
+            .attr("height", cellHeight)
+            .attr("fillStyle", function(d){ return colourScale(d.value); });
+
+        var exitSel = join.exit()
+            .transition()
+            .attr("width", 0)
+            .attr("height", 0)
+            .remove();
+
+    } // databind
+
+    function draw(){
+        // Draw the elements on the canvas
+
+        context.fillStyle = '#fff';
+        context.fillRect(0, 0, width, height);
+
+
+        var elements = custom.selectAll("custom.rect"); // Grab all elements you bound data to in the databind() function.
+
+        elements.each(function(d, i){  // loop through each element
+
+            var node = d3.select(this);  // This is each individual element in the loop.
+
+            context.fillStyle = node.attr("fillStyle"); // Here you retrieve the colour from the individual in-memory node and set the fillStyle for the canvas paint
+
+            context.fillRect(node.attr("x"), node.attr("y"), node.attr("width"), node.attr("height"));// Here you retrieve the position of the node and apply it to the fillRect context function which will fill and paint the square.
+        })
+
+    } //draw
+
+    d3.select("#text-input").on("keydown", function(){
+
+        if(d3.event.keyCode === 13){
+            // only do something if the user hits return (keycode 13).
+
+            if(+this.value < 1 || +this.value > 10000){
+                // if the user goes lower than 1 or higher than 10k...
+
+                d3.select("#text-explain").classed("alert", true);// ... highlight the note about the range and return.
+                return;
+            } else {
+                // If the user types in a sensible number...
+                d3.select("#text-explain").classed("alert", false);
+                // ...remove potential alert colours from the note...
+                value = +this.value; // ...set the value...
+
+                databind(d3.range(value));
+
+                var t = d3.timer(function(elapsed){
+                    draw()
+                    if(elapsed > 300) t.stop();
+                })
+            }
+        }
+
+    })
+
+
+
+
+
+</script>
+
+</body>
+</html>
