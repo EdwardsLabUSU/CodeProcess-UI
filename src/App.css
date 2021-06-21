@@ -103,3 +103,7 @@ body {
 .scatter-container {
 
 }
+
+.active-button{
+  background-color: green;
+}

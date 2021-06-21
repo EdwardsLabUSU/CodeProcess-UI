@@ -11,7 +11,8 @@ class CodePlot extends React.Component {
             'yAxisSelection': true,
             'plotting': true,
             'status': '',
-            'zoom': 1
+            'zoom': 1,
+            'ctrlPress': false
         }
 
         // 
@@ -54,14 +55,29 @@ class CodePlot extends React.Component {
         this.zoomCanvas = this.zoomCanvas.bind(this);
         this.zoom = this.zoom.bind(this);
         this.resetCanvas = this.resetCanvas.bind(this);
+
+        this.enableDrag = this.enableDrag.bind(this)
+        this.disableDrag = this.disableDrag.bind(this)
+
         this.svgParent = null;
         this.canvasParent = null;
 
         this.changeSelection = props.change_selection;
         this.data = this.state.data;
-        this.ctrlPress = false;
     }
 
+    enableDrag(){
+        console.log("Pressed contril")
+        this.canvasParent.style('z-index', 1);
+        this.svgParent.style('z-index', 0);
+        this.setState({'ctrlPress': true});
+    }
+
+    disableDrag(){
+        this.canvasParent.style('z-index', 0);
+        this.svgParent.style('z-index', 1);
+        this.setState({'ctrlPress': false});
+    }
 
     componentDidMount() {
         this.initScales(this.state.data);
@@ -72,16 +88,11 @@ class CodePlot extends React.Component {
         }, false);
         document.addEventListener('keydown', (event)=>{
             if(event.keyCode === 17) {
-                if(!this.ctrlPress) {
+                if(!this.state.ctrlPress) {
                     this.clearSelection();
-                    console.log("Pressed contril")
-                    this.canvasParent.style('z-index', 1);
-                    this.svgParent.style('z-index', 0);
-                    this.ctrlPress = true;
+                    this.enableDrag();
                 } else {
-                    this.canvasParent.style('z-index', 0);
-                    this.svgParent.style('z-index', 1);
-                    this.ctrlPress = false;
+                    this.disableDrag()
                 }
 
             }
@@ -819,31 +830,30 @@ class CodePlot extends React.Component {
                     {/*    style={{}} onClick={this.addBrushXYEvent}>XY-axis*/}
                     {/*</button>*/}
                     <button
-                        style={{
-                            "margin-left": '5px',
-                            'background-color': '#282c35',
-                            'color': 'white',
-                            'box-shadow': '0 0 5px #888',
-                            'border': '0px solid black'
-                        }} onClick={this.resetCanvas}>Clear
+                        // style={{
+                        //     "margin-left": '5px',
+                        //     'background-color': '#282c35',
+                        //     'color': 'white',
+                        //     'box-shadow': '0 0 5px #888',
+                        //     'border': '0px solid black'
+                        // }}
+                        onClick={this.resetCanvas}>Clear
                     </button>
                     <button
-                        style={{
-                            "margin-left": '5px',
-                            'background-color': '#282c35',
-                            'color': 'white',
-                            'box-shadow': '0 0 5px #888',
-                            'border': '0px solid black'
-                        }} onClick={this.zoomCanvas}>Zoom
+                        style={!this.state.ctrlPress ? {
+
+                        }: {
+                            'background-color': '#aaa'
+                        }}
+
+                        onClick={this.enableDrag}>Drag
                     </button>
                     <button
-                        style={{
-                            "margin-left": '5px',
-                            'background-color': '#282c35',
-                            'color': 'white',
-                            'box-shadow': '0 0 5px #888',
-                            'border': '0px solid black'
-                        }} onClick={this.brushCanvas}>Brush
+                        style={this.state.ctrlPress ? {
+                        }: {
+                            'background-color': '#aaa'
+                        }}
+                        onClick={this.disableDrag}>Brush
                     </button>
                     <button
                         onClick={()=>this.zoom(Math.min(this.state.zoom +1, 10))}
@@ -875,12 +885,15 @@ class CodePlot extends React.Component {
                     {/*</div>*/}
 
                 </div>
-                <p style={{
-                    'float': 'left',
-                    'margin-left': '5px'
+                <ul
+                    style={{
+                        "float": "left",
+                        "text-align":"left"
+                    // 'margin-left': '5px'
                 }}>
-                    * You can use delete key to clear selection.
-                </p>
+                    <li>You can use delete key to clear selection.</li>
+                    <li>You can use ctrl key to toggle brush and drag mode.</li>
+                </ul>
             </div>
 
         )
