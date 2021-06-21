@@ -80,9 +80,8 @@ class CodePlayback extends React.Component {
                         'progress': progress,
                         'playBackProgress': 100 * progress / (this.props.endIndex - this.props.startIndex),
                         'blockLength': block_length
-                    });
+                    }, this.props.progressUpdate(progress));
                 }
-                this.props.progressUpdate(this.state.progress);
                 await this.sleep(this.state.delay);
                 console.log('Looping... ', this.props.startIndex, this.props.endIndex)
             }
@@ -190,8 +189,7 @@ class CodePlayback extends React.Component {
                                     'pause': true,
                                     'playBackProgress': v,
                                     'code': this.props.code_blocks[this.props.startIndex + progress]
-                                });
-                                this.props.progressUpdate(this.state.progress);
+                                }, this.props.progressUpdate(progress));
                             }}
                             aria-labelledby="continuous-slider"/>
                     </div>

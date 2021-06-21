@@ -119,13 +119,10 @@ class CodePlot extends React.Component {
         const line = d3.select('.playback-line');
         if (!line.empty()) {
             let zy = this.lastTransform.rescaleY(this.y);
-            console.log("Got line: ", line);
             const line_y = this.props.selection.y1;
             const increment = line_y + this.props.playBackProgress;
             line.attr('y1', zy(increment) + this.margin.top)
                 .attr('y2', zy(increment) + this.margin.top);
-            console.log("Inverted y-value: ", this.y.invert(line_y))
-
         }
 
 
