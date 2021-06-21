@@ -3,15 +3,10 @@ import {Col, Grid, Row} from "react-flexbox-grid";
 import CodeHighlighter from "./highlighter";
 import CodePlayback from "./codePlayback";
 import CodePlot from "./historyPlot_new";
+// import '../data/';
+// import codes from "../data/diff_book.csv";
+// import finalCode from "../data/code_book.txt";
 
-import codes from "../data/diff_book.csv";
-import finalCode from '../data/code_book.txt'
-import image from '../data/image.jpeg';
-import copy_codes from "../copy_data/diff_book.csv";
-import copyFinalCode from '../copy_data/code_book.txt';
-import copyImage from '../copy_data/img.png';
-import grid_point from '../data/grid_point.json';
-import copy_grid_point from '../data/copy_grid_point.json';
 
 class CodeViz extends React.Component{
     constructor(props) {
@@ -29,89 +24,80 @@ class CodeViz extends React.Component{
             'events': 0,
             'image': null,
             'grid_points': [],
-            'loaded': false
+            'loaded': false,
+            'playBackProgress': 0,
+            'selection': null
         }
-
         this.changeHighlighterRange = this.changeHighlighterRange.bind(this);
         this.changePlaybackRange = this.changePlaybackRange.bind(this);
-        this.loadLegitimate = this.loadLegitimate.bind(this);
-        this.loadCopy = this.loadCopy.bind(this);
         this.changeDropDown = this.changeDropDown.bind(this);
         this.changeSelectionRange = this.changeSelectionRange.bind(this);
+        this.updatePlaybackProgress = this.updatePlaybackProgress.bind(this);
+        this.loadFiles = this.loadFiles.bind(this);
     }
 
-    loadLegitimate(){
-        fetch(codes)
-            .then(r => r.text())
-            .then(text => {
-                console.log("Called didmount....")
-                // this.state.code_blocks = JSON.parse(text);
-                this.setState({
-                    'code_blocks': JSON.parse(text),
-                    'playBackIndex': 0,
-                    'endPlayBackIndex': 0,
-                    'code': '',
-                    'image': image
-                    // 'num_events': code_blocks.length
-                });
-
-                fetch(finalCode)
-                    .then(r => r.text())
-                    .then(text => {
-                        this.setState({
-                            'code': text,
-                            'image': image,
-                            'grid_points': grid_point,
-                            'loaded': true,
-                            'user': '1'
-                        })
-                    });
-                // console.log('text decoded:', text);
-                // this.state.num_events = this.state.code_blocks.length;
-            });
+    getFileURL(folder, file){
+        return `https://codeviz-app.herokuapp.com/data/${folder}/${file}`;
     }
 
-    loadCopy(){
-        fetch(copy_codes)
-            .then(r => r.text())
-            .then(text => {
-                console.log("Called didmount....")
-                // this.state.code_blocks = JSON.parse(text);
-                this.setState({
-                    'code_blocks': JSON.parse(text),
-                    'playBackIndex': 0,
-                    'endPlayBackIndex': 0,
-                    'code': '',
-                    'image': image,
-                    // 'grid_points': copy_grid_point
-                    // 'num_events': code_blocks.length
-                });
-
-                fetch(copyFinalCode)
-                    .then(r => r.text())
-                    .then(text => {
-                        this.setState({
-                            'code': text,
-                            'image': copyImage,
-                            'grid_points': copy_grid_point,
-                            'user': '2'
-                        })
+    loadFiles(dir){
+        const _this = this;
+        const diffBookLoader = function (codes) {
+            fetch(_this.getFileURL(dir, 'diff_book.csv'))
+                .then(r => r.text())
+                .then(text => {
+                    _this.setState({
+                        'code_blocks': JSON.parse(text),
+                        'playBackIndex': 0,
+                        'endPlayBackIndex': 0,
                     });
-                // console.log('text decoded:', text);
-                // this.state.num_events = this.state.code_blocks.length;
-            });
+                });
+        }
+
+        const finalCodeLoader = function (finalCode){
+            fetch(_this.getFileURL(dir, 'code_book.txt'))
+                .then(r => r.text())
+                .then(text => {
+                    _this.setState({
+                        'code': text,
+                    })
+                });
+        }
+
+        const gridPointLoader = function (grid){
+            fetch(_this.getFileURL(dir, 'grid_point.json'))
+                .then(r => r.text())
+                .then(text => {
+                    _this.setState({
+                        'grid_points': JSON.parse(text),
+                        'loaded': true,
+                        'user': dir
+                    })
+                });
+        }
+
+        finalCodeLoader(dir);
+        diffBookLoader(dir);
+        gridPointLoader(dir);
     }
 
     componentDidMount() {
-        this.loadLegitimate();
+        this.loadFiles('normal');
     }
 
     changeDropDown(event){
         const student = event.target.value;
         if(student === 'copy'){
-            this.loadCopy()
-        } else {
-            this.loadLegitimate()
+            this.loadFiles('copy');
+        } else if (student === "coon-task"){
+            this.loadFiles('coon-task1');
+        } else if (student === "coon-pattern"){
+            this.loadFiles('coon-pattern');
+        } else if (student === "gordon") {
+            this.loadFiles('gordon')
+        }
+        else {
+            this.loadFiles('normal');
         }
     }
 
@@ -121,7 +107,8 @@ class CodeViz extends React.Component{
             'startIndex': points.x1,
             'chars': points.x2 - points.x1,
             'playBackIndex': points.y1,
-            'endPlayBackIndex': this.state.code_blocks.length > points.y2 ? points.y2 : this.state.code_blocks.length
+            'endPlayBackIndex': this.state.code_blocks.length > points.y2 ? points.y2 : this.state.code_blocks.length,
+            'selection': points
         })
     }
 
@@ -143,6 +130,10 @@ class CodeViz extends React.Component{
             "endPlayBackIndex": final,
             'resetPlayBack': false
         });
+    }
+
+    updatePlaybackProgress(progress){
+        this.setState({'playBackProgress': progress});
     }
 
 
@@ -179,17 +170,25 @@ class CodeViz extends React.Component{
                                         }}>
                                             <option value="legitmate">Legitmate</option>
                                             <option value="copy">Mr. Copy</option>
+                                            <option value="coon-pattern">Cooney Joseph Assgn: 8 (pattern.py)</option>
+                                            <option value="coon-task">Cooney Joseph Assgn: 8 (task1.py)</option>
+                                            <option value="gordon">Gordon</option>
+
                                         </select>
                                     </center>
                                 </div>
 
-
+                                {!this.state.loaded ? <img
+                                    // id={'loading'} className={'loading'}
+                                    src={process.env.PUBLIC_URL+ "/img/loading.gif"}/> :
                                 <CodePlot
                                     key = {this.state.user}
                                     change_selection = {this.changeSelectionRange}
                                     data={this.state.grid_points}
                                     loaded={this.state.loaded}
-                                />
+                                    playBackProgress = {this.state.playBackProgress}
+                                    selection = {this.state.selection}
+                                />}
 
                             </div>
 
@@ -240,6 +239,7 @@ class CodeViz extends React.Component{
                                 startIndex = {this.state.playBackIndex}
                                 endIndex = {this.state.endPlayBackIndex}
                                 resetPlayBack = {this.state.resetPlayBack}
+                                progressUpdate = {this.updatePlaybackProgress}
 
                             />
                         </div>

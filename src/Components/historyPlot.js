@@ -1,8 +1,5 @@
 import React from 'react';
 import * as d3 from 'd3';
-import finalCode from "../data/code_book.txt";
-import image from "../data/image.jpeg";
-import grid_point from '../data/grid_point.json';
 
 class CodePlot extends React.Component{
     constructor(props) {

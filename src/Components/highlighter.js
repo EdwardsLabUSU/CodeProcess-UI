@@ -46,8 +46,8 @@ class CodeHighlighter extends React.Component{
             const postCodeChars = postCodeLines.slice(0, postCodeLines.length -1 ).join('\n');
 
             console.log("In highlighter: ", {
-                line: preCodeLines.length
-                ,ch: this.props.startIndex - preCodeChars.length
+                line: preCodeLines.length,
+                ch: this.props.startIndex - preCodeChars.length - 2
             },{
                 line:postCodeLines.length,
                 ch: this.props.startIndex + this.props.chars - postCodeChars.length
@@ -57,10 +57,10 @@ class CodeHighlighter extends React.Component{
                 this.marker.clear();
             this.marker = this.editor.markText({
                 line: preCodeLines.length - 1
-                ,ch: this.props.startIndex - preCodeChars.length
+                ,ch: this.props.startIndex - preCodeChars.length - 1
             },{
                 line:postCodeLines.length - 1,
-                ch: this.props.startIndex + this.props.chars - postCodeChars.length
+                ch: this.props.startIndex + this.props.chars - postCodeChars.length - 1
             }, {
                 'readOnly': false,
                 'className': 'highlighted-code'
