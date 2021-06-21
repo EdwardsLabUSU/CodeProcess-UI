@@ -61,6 +61,7 @@ class CodePlot extends React.Component {
 
         this.svgParent = null;
         this.canvasParent = null;
+        this.pointHeight = 0;
 
         this.changeSelection = props.change_selection;
         this.data = this.state.data;
@@ -118,6 +119,7 @@ class CodePlot extends React.Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         const line = d3.select('.playback-line');
         if (!line.empty()) {
+            console.log("Progress got: ", this.props.playBackProgress)
             let zy = this.lastTransform.rescaleY(this.y);
             const line_y = this.props.selection.y1;
             const increment = line_y + this.props.playBackProgress;
@@ -345,16 +347,21 @@ class CodePlot extends React.Component {
             let zx = this.lastTransform.rescaleX(this.x);
             let zy = this.lastTransform.rescaleY(this.y);
 
-            const x1 = zx.invert(this.lastBrushSelection.x1);
-            const x2 = zx.invert(this.lastBrushSelection.x2);
+            const x1 = parseInt(zx.invert(this.lastBrushSelection.x1));
+            const x2 = parseInt(zx.invert(this.lastBrushSelection.x2));
 
-            const y1 = zy.invert(this.lastBrushSelection.y1);
-            const y2 = zy.invert(this.lastBrushSelection.y2);
+            const y1 = parseInt(zy.invert(this.lastBrushSelection.y1));
+            const y2 = parseInt(zy.invert(this.lastBrushSelection.y2));
 
-            const _x1 = this.lastBrushSelection.x1 + _this.margin.left;
-            const _x2 = this.lastBrushSelection.x2 + _this.margin.left;
-            const _y1 = this.lastBrushSelection.y1 + _this.margin.top;
-            const _y2 = this.lastBrushSelection.y2 + _this.margin.top;
+            // const _x1 = this.lastBrushSelection.x1 + _this.margin.left;
+            // const _x2 = this.lastBrushSelection.x2 + _this.margin.left;
+            // const _y1 = this.lastBrushSelection.y1 + _this.margin.top;
+            // const _y2 = this.lastBrushSelection.y2 + _this.margin.top;
+
+            const _x1 = zx(x1) + _this.margin.left;
+            const _x2 = zx(x2) + _this.margin.left;
+            const _y1 = zy(y1) + _this.margin.top;
+            const _y2 = zy(y2) + _this.margin.top;
 
 
             // var drag = d3.drag()
@@ -441,10 +448,10 @@ class CodePlot extends React.Component {
                 //             .scale(1));
 
                 _this.props.change_selection({
-                    'x1': parseInt(x1),
-                    'y1': parseInt(y1),
-                    'x2': parseInt(x2),
-                    'y2': parseInt(y2)
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2
                 })
 
                 this.svgParent.append('line')
@@ -507,17 +514,17 @@ class CodePlot extends React.Component {
                     .attr("y2", _y1);
 
                 _this.props.change_selection({
-                    'x1': parseInt(x1),
-                    'y1': parseInt(y1),
-                    'x2': parseInt(x2),
-                    'y2': parseInt(y2)
+                    'x1': x1,
+                    'y1': y1,
+                    'x2': x2,
+                    'y2': y2
                 })
             } else if (dim === "y") {
                 _this.props.change_selection({
                     'x1': 0,
-                    'y1': parseInt(y1),
+                    'y1': y1,
                     'x2': 0,
-                    'y2': parseInt(y2)
+                    'y2': y2
                 });
                 this.svgParent.append('line')
                     .attr('class', 'playback-line')
@@ -640,14 +647,10 @@ class CodePlot extends React.Component {
 
             const x_domain = scaleX.domain();
             const y_domain = scaleY.domain();
-            console.log("Min and max value: ", x_domain[0], x_domain[1])
-            console.log("Min and max value: ", y_domain[0], y_domain[1])
-            let plotted_points = 0;
-            let _point = null;
-
             _this.lastTransform = transform;
             const pointHeight = scaleY(_this.height)/scaleY(_this.max_y_domain);
             const pointWidth = scaleX(_this.width)/scaleX(_this.max_x_domain);
+            _this.pointHeight = pointHeight;
             // const pointWidth = scaleX(_this.width)/(x_domain[1] - x_domain[0]);
             // const pointHeight = scaleY(_this.height)/(y_domain[0] - y_domain[1]);
 
@@ -658,20 +661,11 @@ class CodePlot extends React.Component {
                         ((y_domain[1] <= point[1] && point[1] <= y_domain[0]))
                         ) {
                     drawPoint(scaleX, scaleY, point, transform.k, pointWidth, pointHeight);
-                    plotted_points++;
-                    _point = point;
                 }
             });
             _this.setState({'plotting': false})
             d3.select('#scatter-container').style('display', "block");
             d3.select('.loading').style('display', 'none');
-            console.log("Last transform: ", _this.lastTransform)
-            console.log(transform);
-            console.log("Min and max value: ", x_domain[0], x_domain[1],_point)
-            console.log("Total plotted points: ", plotted_points, _this.state.plotting)
-
-
-
         }
 
         // Initial draw made with no zoom
@@ -702,9 +696,6 @@ class CodePlot extends React.Component {
             .on('zoom', (event) => {
                 const transform = event.transform;
                 context.save();
-                console.log(this.lastTransform);
-                console.log("New transform: ", transform);
-
                 this.setState({
                     'status': 'Plotting'
                 }, ()=> draw(transform));
@@ -742,6 +733,7 @@ class CodePlot extends React.Component {
 
 
     zoom(scale){
+        this.clearSelection();
         this.setState({
             'zoom': scale
         }, () => this.canvasParent
@@ -756,13 +748,13 @@ class CodePlot extends React.Component {
     }
 
     resetCanvas(){
-        console.log("Called zoom:  ", this.canvasParent);
         const t = d3.zoomIdentity.translate(0, 0).scale(1);
         const zoom_func = this.zoom_function;
         this.canvasParent.transition()
             .duration(750)
             .call(zoom_func.transform, d3.zoomIdentity);
         this.clearSelection();
+        this.setState({'zoom':1});
     }
 
     brushCanvas(){
@@ -862,6 +854,18 @@ class CodePlot extends React.Component {
                     >
                         Zoom Out
                     </button>
+                    <ul style={{
+                        'float': 'right',
+                        'text-align': 'left',
+                        'margin-right': '10px',
+                        'margin-top': '20%',
+                        'border': '1px solid black',
+                        'padding': '2%'
+                    }}>
+                        <li>Zoom: {this.state.zoom}x </li>
+                        <li>Mode: {this.state.ctrlPress ? 'Drag': 'Brush'}</li>
+                    </ul>
+
 
                 </div>
 

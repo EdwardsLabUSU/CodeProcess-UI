@@ -17,28 +17,31 @@ class CodePlayback extends React.Component {
             'playback_code': 'This is playback...',
             'button_comp': 'Play Code',
             'button_label': 'Play Code',
-            'progress': 0,
+            'progress': -1,
             'num_events': props.code_blocks.length,
             'delay': 300,
             'prevStart': 0,
             'prevEnd': 0,
-            'playBackProgress': 0,
             'currentIndex': props.startIndex
         }
         this.play_icon = <PlayCircleOutlineIcon/>
         this.getCode = this.getCode.bind(this);
         this.playCode = this.playCode.bind(this);
         this.brushPositionChanged = this.brushPositionChanged.bind(this);
+        this.currentPosition = this.currentPosition.bind(this);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         if (prevProps.startIndex !== this.props.startIndex) {
             this.setState({
-                'playBackProgress': 0,
-                'progress': 0,
+                'progress': -1,
                 'code': this.props.code_blocks[this.props.startIndex]
             })
         }
+    }
+
+    currentPosition(){
+        return this.props.startIndex + Math.max(this.state.progress, 0)
     }
 
     sleep(ms) {
@@ -52,42 +55,31 @@ class CodePlayback extends React.Component {
     }
 
     async getCode() {
-        console.log("Looping started....: ", this.state.pause, this.props.startIndex, this.props.endIndex)
-        console.log("This is the length of a index: ", this.props.code_blocks.slice(this.props.startIndex, this.props.endIndex).length)
-        console.log("This is the length of code_blocks: ", this.props.code_blocks.length)
-
-        this.setState({}, async () => {
-            const code_blocks = this.props.code_blocks.slice(this.props.startIndex + this.state.progress, this.props.endIndex + 1);
-            const block_length = code_blocks.length;
-            for (const [i, _code] of code_blocks.entries()) {
-                console.log(i / block_length);
-                if (this.state.pause) {
-                    console.log("Broken down....: ", this.state.pause)
-                    break;
-                }
-                // If user changes the brush area while playing re-start the code.
-                else if (this.brushPositionChanged()) {
-                    console.log('Changed burush points....')
-                    this.setState({
-                        'progress': 0
-                    }, this.playCode);
-                    // this.playCode();
-                    break;
-                } else {
-                    const progress = this.state.progress + 1;
-                    this.setState({
-                        'code': _code,
-                        'progress': progress,
-                        'playBackProgress': 100 * progress / (this.props.endIndex - this.props.startIndex),
-                        'blockLength': block_length
-                    }, this.props.progressUpdate(progress));
-                }
-                await this.sleep(this.state.delay);
-                console.log('Looping... ', this.props.startIndex, this.props.endIndex)
+        const code_blocks = this.props.code_blocks.slice(this.currentPosition(), this.props.endIndex + 1);
+        console.log("Code blocks length: ", code_blocks.length, this.state.progress)
+        const block_length = code_blocks.length;
+        for (const [i, _code] of code_blocks.entries()) {
+            if (this.state.pause) {
+                break;
             }
-            this.setState({
-                'pause': true
-            });
+            // If user changes the brush area while playing re-start the code.
+            else if (this.brushPositionChanged()) {
+                this.setState({
+                    'progress': -1
+                }, this.playCode);
+                break;
+            } else {
+                const progress = this.state.progress + 1;
+                this.setState({
+                    'code': _code,
+                    'progress': progress,
+                    'blockLength': block_length
+                }, ()=>this.props.progressUpdate(progress));
+            }
+            await this.sleep(this.state.delay);
+        }
+        this.setState({
+            'pause': true
         });
     }
 
@@ -106,7 +98,7 @@ class CodePlayback extends React.Component {
             this.setState({
                 'button_label': 'Play Code',
                 'pause': 'true',
-                'code': this.props.code_blocks[this.props.startIndex + this.state.progress]
+                'code': this.props.code_blocks[this.currentPosition()]
             });
         }
 
@@ -180,14 +172,17 @@ class CodePlayback extends React.Component {
                                 'margin-left': '3%',
                                 'margin-right': '3%'
                             }}
-                            value={this.state.playBackProgress}
+                            min={this.props.startIndex}
+                            max={this.props.endIndex}
+                            step={1}
+                            value={this.currentPosition()}
                             onChange={(e, v) => {
                                 console.log("Changed....")
-                                const progress = parseInt(v / 100 * (this.props.endIndex + 1 - this.props.startIndex), 10);
+                                // const progress = parseInt(v / 100 * (this.props.endIndex + 1 - this.props.startIndex), 10);
+                                const progress = v - this.props.startIndex ;
                                 this.setState({
                                     'progress': progress,
                                     'pause': true,
-                                    'playBackProgress': v,
                                     'code': this.props.code_blocks[this.props.startIndex + progress]
                                 }, this.props.progressUpdate(progress));
                             }}
@@ -208,8 +203,8 @@ class CodePlayback extends React.Component {
                     }}>
                         {/*{()=> ((this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo')()}*/}
                         {/*{(this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo'}*/}
-                        Events: {this.props.startIndex + this.state.progress}
-                        /{this.props.endIndex !==0 ? this.props.endIndex + 1: this.props.endIndex}. Playback
+                        Events: {this.currentPosition()}
+                        /{this.props.endIndex !==0 ? this.props.endIndex : this.props.endIndex}. Playback
                         speed: {this.state.delay} ms</p>
                     <CodeMirror
                         value={this.state.code}
