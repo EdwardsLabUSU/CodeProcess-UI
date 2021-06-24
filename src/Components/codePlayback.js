@@ -32,11 +32,12 @@ class CodePlayback extends React.Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (prevProps.startIndex !== this.props.startIndex) {
+        if (this.props.resetPlayBackFlag) {
             this.setState({
                 'progress': -1,
                 'code': this.props.code_blocks[this.props.startIndex]
-            })
+            }, this.props.progressUpdate, -1);
+            this.props.resetPlayBack(false);
         }
     }
 
@@ -56,8 +57,8 @@ class CodePlayback extends React.Component {
 
     async getCode() {
         const code_blocks = this.props.code_blocks.slice(this.currentPosition(), this.props.endIndex + 1);
-        console.log("Code blocks length: ", code_blocks.length, this.state.progress)
-        const block_length = code_blocks.length;
+        // console.log("Code blocks length: ", code_blocks.length, this.state.progress)
+        const block_length = this.props.code_blocks.slice(this.props.startIndex, this.props.endIndex + 1).length;
         for (const [i, _code] of code_blocks.entries()) {
             if (this.state.pause) {
                 break;
@@ -69,7 +70,8 @@ class CodePlayback extends React.Component {
                 }, this.playCode);
                 break;
             } else {
-                const progress = this.state.progress + 1;
+                const progress = Math.min(this.state.progress + 1, block_length - 1);
+                console.log("This is progress: ", progress, block_length)
                 this.setState({
                     'code': _code,
                     'progress': progress,
@@ -86,7 +88,7 @@ class CodePlayback extends React.Component {
     playCode() {
         // this.togglePlay();
         if (this.state.pause) {
-            console.log('Stoppped ...... ', this.state.progress)
+            // console.log('Stoppped ...... ', this.state.progress)
             this.setState({
                 'button_label': 'Stop Playback',
                 'pause': false,
@@ -177,13 +179,13 @@ class CodePlayback extends React.Component {
                             step={1}
                             value={this.currentPosition()}
                             onChange={(e, v) => {
-                                console.log("Changed....")
+                                // console.log("Changed....")
                                 // const progress = parseInt(v / 100 * (this.props.endIndex + 1 - this.props.startIndex), 10);
                                 const progress = v - this.props.startIndex ;
                                 this.setState({
                                     'progress': progress,
                                     'pause': true,
-                                    'code': this.props.code_blocks[this.props.startIndex + progress]
+                                    'code': this.props.code_blocks[v]
                                 }, this.props.progressUpdate(progress));
                             }}
                             aria-labelledby="continuous-slider"/>
@@ -204,7 +206,7 @@ class CodePlayback extends React.Component {
                         {/*{()=> ((this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo')()}*/}
                         {/*{(this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo'}*/}
                         Events: {this.currentPosition()}
-                        /{this.props.endIndex !==0 ? this.props.endIndex : this.props.endIndex}. Playback
+                        /{this.props.endIndex}. Playback
                         speed: {this.state.delay} ms</p>
                     <CodeMirror
                         value={this.state.code}

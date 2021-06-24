@@ -23,8 +23,8 @@ function Handle({
        handle: { id, value, percent },
        getHandleProps
    }) {
-    console.log(getHandleProps());
-    // console.log(rangeChange(id, value));
+    // console.log(getHandleProps());
+    // // console.log(rangeChange(id, value));
     // getHandleProps.rangeChange(id, value);
     return (
         <div

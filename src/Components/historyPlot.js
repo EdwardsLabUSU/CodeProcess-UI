@@ -8,8 +8,8 @@ class CodePlot extends React.Component{
             'data': [...this.props.data],
             'loaded': this.props.loaded
         }
-        console.log('Inside constructor of svg plot....')
-        // console.log('Data has been loaded....' , this.state.data.length)
+        // console.log('Inside constructor of svg plot....')
+        // // console.log('Data has been loaded....' , this.state.data.length)
         this.pointColor = '#3585ff'
         this.margin = {top: 20, right: 15, bottom: 60, left: 100};
         this.outerWidth = 800;
@@ -102,7 +102,7 @@ class CodePlot extends React.Component{
 
         function brush_startEvent(event) {
             _this.clearSelection();
-            console.log("This is event in brush start:" ,event);
+            // console.log("This is event in brush start:" ,event);
             const sourceEvent = event.sourceEvent;
             const selection = event.selection;
             if (sourceEvent && sourceEvent.type === 'mousedown') {
@@ -115,7 +115,7 @@ class CodePlot extends React.Component{
                     y: selection[0][1]
                 }
             } else {
-                console.log('Null start point...');
+                // console.log('Null start point...');
                 brushStartPoint = null;
             }
         }
@@ -123,7 +123,7 @@ class CodePlot extends React.Component{
 
         function brush_brushEvent(event) {
             if (brushStartPoint !== null) {
-                console.log('Brush start point is not null: ', brushStartPoint)
+                // console.log('Brush start point is not null: ', brushStartPoint)
                 const scale = 1;
                 const sourceEvent = event.sourceEvent;
                 const mouse = {
@@ -196,11 +196,11 @@ class CodePlot extends React.Component{
 
         function brush_endEvent(event) {
             const s = event.selection;
-            console.log("Brush event is ended.. ", lastSelection, s)
-            console.log(s)
+            // console.log("Brush event is ended.. ", lastSelection, s)
+            // console.log(s)
             if (!s && lastSelection !==null) {
-                console.log(lastSelection);
-                console.log('Get x, y position: ', _this.x(lastSelection.x1), _this.x(lastSelection.x2) )
+                // console.log(lastSelection);
+                // console.log('Get x, y position: ', _this.x(lastSelection.x1), _this.x(lastSelection.x2) )
                 // Re-scale axis for the last transformation
                 // let zx = lastTransform.rescaleX(x);
                 // let zy = lastTransform.rescaleY(y);
@@ -218,10 +218,10 @@ class CodePlot extends React.Component{
                 // zx = t.rescaleX(x);
                 // zy = t.rescaleY(y);
 
-                // console.log('Original Point: ', originalPoint);
-                console.log("Inverted value: " , _this.x.invert(lastSelection.x1) , _this.x.invert(lastSelection.x2));
-                console.log(_this.x);
-                // console.log('Value of t: ', t)
+                // // console.log('Original Point: ', originalPoint);
+                // console.log("Inverted value: " , _this.x.invert(lastSelection.x1) , _this.x.invert(lastSelection.x2));
+                // console.log(_this.x);
+                // // console.log('Value of t: ', t)
 
                 // These are the actual values of the ranges... Used for highlighting and Code playback...
                 const x1 = _this.x.invert(lastSelection.x1);
@@ -237,14 +237,14 @@ class CodePlot extends React.Component{
                     'y2': parseInt(y2)
                 })
 
-                console.log(' This is the final point:  ', x1, x2, y1, y2);
+                // console.log(' This is the final point:  ', x1, x2, y1, y2);
 
                 const _x1 = lastSelection.x1 + _this.margin.left;
                 const _x2 = lastSelection.x2 + _this.margin.left;
                 const _y1 = lastSelection.y1 + _this.margin.top;
                 const _y2 = lastSelection.y2 + _this.margin.top;
 
-                console.log("D3 drag....", d3.drag)
+                // console.log("D3 drag....", d3.drag)
                 var drag = d3.drag()
                     // .origin(function(d) { return d; })
                     .on('start', dragstarted)
@@ -261,9 +261,9 @@ class CodePlot extends React.Component{
                 function dragged(event, elem) {
                     var x = event.dx;
                     var y = event.dy;
-                    console.log("Drag event....: ", event, elem);
+                    // console.log("Drag event....: ", event, elem);
                     var line = d3.select('#x-initial');
-                    console.log('This is line:  ', line, x, y)
+                    // console.log('This is line:  ', line, x, y)
                     // Update the line properties
                     var attributes = {
                         x1: parseInt(line.attr('x1')) + x,
@@ -273,7 +273,7 @@ class CodePlot extends React.Component{
                         y2: parseInt(line.attr('y2')) + y,
                         color: 'pink'
                     };
-                    console.log('New attrs:  ', attributes )
+                    // console.log('New attrs:  ', attributes )
                     // line.attr(attributes);
                     line.attr('stroke', 'pink')
                 }
@@ -364,7 +364,7 @@ class CodePlot extends React.Component{
                 //             .scale(t.k));
                 lastSelection = null;
             } else if ( s!== null && lastSelection !== null){
-                console.log('Null start point in the house....');
+                // console.log('Null start point in the house....');
                 // brushSvg.call(brush.move, [[0,0],[0,0]]);
                 brushSvg.call(brush.move, null);
                 // _this.clearSelection();

@@ -33,7 +33,7 @@ class CodeHighlighter extends React.Component{
 
     componentDidUpdate(prevProps, prevState, snapshot) {
         {/*editor.markText({line:1,ch:1},{line:13,ch:1},{readOnly:false})*/}
-        console.log("Marked text.... : ", this.editor)
+        // console.log("Marked text.... : ", this.editor)
         if(this.editor !== null) {
             // return this.props.highlight ? this.props.code.slice(this.props.startIndex, this.props.startIndex + this.props.chars) : '';
             const preHighlight = this.props.code.slice(0, this.props.startIndex);
@@ -44,14 +44,6 @@ class CodeHighlighter extends React.Component{
             // Number of code characters before current line...
             const preCodeChars = preCodeLines.slice(0, preCodeLines.length -1 ).join('\n');
             const postCodeChars = postCodeLines.slice(0, postCodeLines.length -1 ).join('\n');
-
-            console.log("In highlighter: ", {
-                line: preCodeLines.length,
-                ch: this.props.startIndex - preCodeChars.length - 2
-            },{
-                line:postCodeLines.length,
-                ch: this.props.startIndex + this.props.chars - postCodeChars.length
-            })
             // const startLine = this.props.code.slice(0, this.props.startIndex).splitLines('\n').length;
             if(this.marker != null)
                 this.marker.clear();
@@ -65,13 +57,14 @@ class CodeHighlighter extends React.Component{
                 'readOnly': false,
                 'className': 'highlighted-code'
             });
-            // this.editor.execCommand('selectAll');
+            console.log("Precode line: ", preCodeLines.length)
+            this.editor.scrollIntoView({line: preCodeLines.length > 20 ? (preCodeLines.length + 10): 0 , char:0})
         }
 
     }
 
     preHighLight(){
-        console.log("Pre highlight: ", this.props.startIndex )
+        // console.log("Pre highlight: ", this.props.startIndex )
         return this.props.highlight ? this.props.code.slice(0, this.props.startIndex) : this.props.code;
     }
 
@@ -80,7 +73,7 @@ class CodeHighlighter extends React.Component{
     }
 
     postHighLight(){
-        console.log("post highlight: ", this.props.chars )
+        // console.log("post highlight: ", this.props.chars )
         return this.props.highlight ? this.props.code.slice(this.props.startIndex+this.props.chars) : '';
     }
 

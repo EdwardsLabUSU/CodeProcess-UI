@@ -11,7 +11,7 @@ import CodePlot from "./historyPlot_new";
 class CodeViz extends React.Component{
     constructor(props) {
         super(props);
-        console.log("Called constructor....")
+        // console.log("Called constructor....")
         this.state = {
             'user': null,
             'code': '',
@@ -26,7 +26,8 @@ class CodeViz extends React.Component{
             'grid_points': [],
             'loaded': false,
             'playBackProgress': 0,
-            'selection': null
+            'selection': null,
+            'display': 'none'
         }
         this.changeHighlighterRange = this.changeHighlighterRange.bind(this);
         this.changePlaybackRange = this.changePlaybackRange.bind(this);
@@ -34,6 +35,8 @@ class CodeViz extends React.Component{
         this.changeSelectionRange = this.changeSelectionRange.bind(this);
         this.updatePlaybackProgress = this.updatePlaybackProgress.bind(this);
         this.loadFiles = this.loadFiles.bind(this);
+        this.showLoading = this.showLoading.bind(this);
+        this.resetPlayBack = this.resetPlayBack.bind(this);
     }
 
     getFileURL(folder, file){
@@ -85,6 +88,12 @@ class CodeViz extends React.Component{
         this.loadFiles('normal');
     }
 
+    resetPlayBack(value){
+        this.setState({
+            'resetPlayBack': value
+        })
+    }
+
     changeDropDown(event){
         const student = event.target.value;
         if(student === 'copy'){
@@ -99,10 +108,11 @@ class CodeViz extends React.Component{
         else {
             this.loadFiles('normal');
         }
+        this.resetPlayBack(true);
     }
 
     changeSelectionRange(points){
-        console.log('Change selection range.... : ', points)
+        // console.log('Change selection range.... : ', points)
         this.setState({
             'startIndex': points.x1,
             'chars': points.x2 - points.x1,
@@ -122,13 +132,12 @@ class CodeViz extends React.Component{
     }
 
     changePlaybackRange(values){
-        console.log("Playback changed....: ", values)
+        // console.log("Playback changed....: ", values)
         const initial = values[0];
         const final = values[1];
         this.setState({
             "playBackIndex" : initial,
-            "endPlayBackIndex": final,
-            'resetPlayBack': false
+            "endPlayBackIndex": final
         });
     }
 
@@ -136,6 +145,19 @@ class CodeViz extends React.Component{
         this.setState({'playBackProgress': progress});
     }
 
+    async showLoading(flag){
+        if(flag) {
+            // console.log("Called show Loading...")
+            this.setState({
+                'display': 'none'
+            })
+        } else {
+            // console.log("Called exit Loading...")
+            this.setState({
+                'display': 'auto'
+            })
+        }
+    }
 
     render() {
         return(
@@ -181,14 +203,18 @@ class CodeViz extends React.Component{
                                 {!this.state.loaded ? <img
                                     // id={'loading'} className={'loading'}
                                     src={process.env.PUBLIC_URL+ "/img/loading.gif"}/> :
+                                    // <p></p> }
                                 <CodePlot
+                                    resetPlayBack = {this.resetPlayBack}
+                                    showLoading = {this.showLoading}
                                     key = {this.state.user}
                                     change_selection = {this.changeSelectionRange}
                                     data={this.state.grid_points}
                                     loaded={this.state.loaded}
                                     playBackProgress = {this.state.playBackProgress}
                                     selection = {this.state.selection}
-                                />}
+                                />
+                                }
 
                             </div>
 
@@ -235,10 +261,12 @@ class CodeViz extends React.Component{
                             />
                             <CodePlayback
                                 // key={this.state.user+'-playback'}
+                                startChar = {this.state.startIndex}
                                 code_blocks = {this.state.code_blocks}
                                 startIndex = {this.state.playBackIndex}
                                 endIndex = {this.state.endPlayBackIndex}
-                                resetPlayBack = {this.state.resetPlayBack}
+                                resetPlayBack = {this.resetPlayBack}
+                                resetPlayBackFlag = {this.state.resetPlayBack}
                                 progressUpdate = {this.updatePlaybackProgress}
 
                             />
