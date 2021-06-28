@@ -1,7 +1,8 @@
 import React from "react";
 import {Controlled as CodeMirror} from 'react-codemirror2';
+import BaseIDE from "../lib/codeMirror";
 
-class CodeHighlighter extends React.Component{
+class CodeHighlighter extends BaseIDE{
 
     constructor(props) {
         super(props);
@@ -34,7 +35,7 @@ class CodeHighlighter extends React.Component{
     componentDidUpdate(prevProps, prevState, snapshot) {
         {/*editor.markText({line:1,ch:1},{line:13,ch:1},{readOnly:false})*/}
         // console.log("Marked text.... : ", this.editor)
-        if(this.editor !== null) {
+        if(this.editor !== null && (prevProps.startIndex != this.props.startIndex || this.props.chars != prevProps.chars)) {
             // return this.props.highlight ? this.props.code.slice(this.props.startIndex, this.props.startIndex + this.props.chars) : '';
             const preHighlight = this.props.code.slice(0, this.props.startIndex);
             const preCodeLines = preHighlight.split('\n');
@@ -57,8 +58,35 @@ class CodeHighlighter extends React.Component{
                 'readOnly': false,
                 'className': 'highlighted-code'
             });
-            console.log("Precode line: ", preCodeLines.length)
-            this.editor.scrollIntoView({line: preCodeLines.length > 20 ? (preCodeLines.length + 10): 0 , char:0})
+            let preCodeLine = preCodeLines.length;
+            let postcodeLine = postCodeLines.length;
+            let scrollTo = preCodeLine;
+            let lastLine = this.props.code.split('\n').length;
+            if(preCodeLine  > 20) {
+                if ((preCodeLine + 20) < lastLine) {
+                    scrollTo = preCodeLine + 20
+                }
+            } else {
+                scrollTo = 0
+            }
+            this.editor.scrollIntoView({line: scrollTo, char:0})
+            console.log('Highlight Toggle: ', this.props.highLightToggle)
+            if(this.props.highLightToggle) {
+                console.log("Clear highlight...")
+                this.props.highLightDiff();
+            }
+        }
+
+        if(this.props.highLightOption !== null) {
+            this.clearDiffMarkers();
+            const option = this.props.highLightOption;
+            option.final.forEach((each)=>{
+                // this.highlightRange(this.editor, this.props.code, each[0],
+                //     each[1]);
+                this.highlightRange(this.editor, this.props.code, each);
+            });
+        } else {
+            this.clearDiffMarkers();
         }
 
     }

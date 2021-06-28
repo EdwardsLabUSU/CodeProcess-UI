@@ -3,6 +3,7 @@ import {Col, Grid, Row} from "react-flexbox-grid";
 import CodeHighlighter from "./highlighter";
 import CodePlayback from "./codePlayback";
 import CodePlot from "./historyPlot_new";
+const zlib = require('zlib');
 // import '../data/';
 // import codes from "../data/diff_book.csv";
 // import finalCode from "../data/code_book.txt";
@@ -27,7 +28,11 @@ class CodeViz extends React.Component{
             'loaded': false,
             'playBackProgress': 0,
             'selection': null,
-            'display': 'none'
+            'display': 'none',
+            'match_blocks': [],
+            'highLightOption':  null,
+            'diff_line': null,
+            'highLightDiffToggle': false
         }
         this.changeHighlighterRange = this.changeHighlighterRange.bind(this);
         this.changePlaybackRange = this.changePlaybackRange.bind(this);
@@ -37,6 +42,8 @@ class CodeViz extends React.Component{
         this.loadFiles = this.loadFiles.bind(this);
         this.showLoading = this.showLoading.bind(this);
         this.resetPlayBack = this.resetPlayBack.bind(this);
+        this.highLightDiff = this.highLightDiff.bind(this);
+        this.updateHighLightDiff = this.updateHighLightDiff.bind(this);
     }
 
     getFileURL(folder, file){
@@ -47,8 +54,10 @@ class CodeViz extends React.Component{
         const _this = this;
         const diffBookLoader = function (codes) {
             fetch(_this.getFileURL(dir, 'diff_book.csv'))
+                // .then(r => zlib.gunzip(r, (err, dezipped) => dezipped.toString()))
                 .then(r => r.text())
                 .then(text => {
+                    // console.log("Dezipped: ", zlib.gunzip(text, (err, dezipped) => dezipped))
                     _this.setState({
                         'code_blocks': JSON.parse(text),
                         'playBackIndex': 0,
@@ -73,15 +82,51 @@ class CodeViz extends React.Component{
                 .then(text => {
                     _this.setState({
                         'grid_points': JSON.parse(text),
-                        'loaded': true,
-                        'user': dir
+                        'user': dir,
+                        'loaded': true
                     })
                 });
         }
 
-        finalCodeLoader(dir);
-        diffBookLoader(dir);
-        gridPointLoader(dir);
+        const matchBlockLoader = function (){
+            fetch(_this.getFileURL(dir, 'match_block.json'))
+                .then(r => r.text())
+                .then(text => {
+                    _this.setState({
+                        'match_blocks': JSON.parse(text)
+                    })
+                });
+        }
+
+
+        const diffLineLoader = function (){
+            fetch(_this.getFileURL(dir, 'diff_line.json'))
+                .then(r => r.text())
+                .then(text => {
+                    _this.setState({
+                        'diff_line': JSON.parse(text)
+                    })
+                });
+        }
+        this.setState({
+            'loaded': false,
+            'user': null,
+            'diff_line': [],
+            'match_blocks': [],
+            'grid_points': [],
+            'code': null,
+            'code_blocks': [],
+            'playBackIndex': 0,
+            'endPlayBackIndex': 0
+
+        }, ()=>{
+            finalCodeLoader(dir);
+            diffBookLoader(dir);
+            gridPointLoader(dir);
+            matchBlockLoader(dir);
+            diffLineLoader(dir);
+        });
+
     }
 
     componentDidMount() {
@@ -90,7 +135,8 @@ class CodeViz extends React.Component{
 
     resetPlayBack(value){
         this.setState({
-            'resetPlayBack': value
+            'resetPlayBack': value,
+            'playBackProgress': 0
         })
     }
 
@@ -142,7 +188,9 @@ class CodeViz extends React.Component{
     }
 
     updatePlaybackProgress(progress){
-        this.setState({'playBackProgress': progress});
+        this.setState({'playBackProgress': progress, 'highLightOption': null});
+        if(this.state.highLightDiffToggle)
+            this.updateHighLightDiff();
     }
 
     async showLoading(flag){
@@ -155,6 +203,31 @@ class CodeViz extends React.Component{
             // console.log("Called exit Loading...")
             this.setState({
                 'display': 'auto'
+            })
+        }
+    }
+
+    updateHighLightDiff() {
+        const match_block = this.state.match_blocks[this.state.playBackIndex + this.state.playBackProgress];
+        this.setState({
+            'highLightOption': {
+                'final': match_block.final,
+                'snapShot': match_block.snapShot
+            }
+        })
+    }
+
+    highLightDiff(){
+        if(this.state.highLightOption === null) {
+            this.updateHighLightDiff();
+            this.setState({
+                'highLightDiffToggle': true
+            })
+        } else {
+            console.log("Clear highlightdiff")
+            this.setState({
+                'highLightOption': null,
+                'highLightDiffToggle': false
             })
         }
     }
@@ -213,9 +286,28 @@ class CodeViz extends React.Component{
                                     loaded={this.state.loaded}
                                     playBackProgress = {this.state.playBackProgress}
                                     selection = {this.state.selection}
+                                    highLightDiff = {this.highLightDiff}
+                                    highLightOption = {this.state.highLightOption}
+                                    highLightToggle = {this.state.highLightDiffToggle}
                                 />
                                 }
-
+                                <ul
+                                    style={{
+                                        "float": "left",
+                                        "text-align": "left"
+                                    }}>
+                                    <p
+                                        style={{
+                                            'margin': '0px',
+                                            // "float": 'left'
+                                        }}
+                                    ><b>Shortcuts:</b></p>
+                                    <li>"s" -> Selection</li>
+                                    <li>"z" -> Zoom</li>
+                                    <li>"p" -> Pan</li>
+                                    <li>"r" -> Reset View</li>
+                                    <li>"c" -> Clear Selection</li>
+                                </ul>
                             </div>
 
 
@@ -255,10 +347,6 @@ class CodeViz extends React.Component{
                     </Col>
                     <Col xs={12} sm={10} md={4} lg={4}>
                         <div>
-                            <CodeHighlighter
-                                // key={this.state.user+'-highlighter'}
-                                {...this.state}
-                            />
                             <CodePlayback
                                 // key={this.state.user+'-playback'}
                                 startChar = {this.state.startIndex}
@@ -268,8 +356,20 @@ class CodeViz extends React.Component{
                                 resetPlayBack = {this.resetPlayBack}
                                 resetPlayBackFlag = {this.state.resetPlayBack}
                                 progressUpdate = {this.updatePlaybackProgress}
+                                highLightOption = {this.state.highLightOption}
+                                loaded={this.state.loaded}
+                                updateHighLightDiff = {this.updateHighLightDiff}
+                                diffLineNumber = {this.state.diff_line}
+                            />
+                            <CodeHighlighter
+                                // key={this.state.user+'-highlighter'}
+                                {...this.state}
+                                highLightDiff = {this.highLightDiff}
+                                updateHighLightDiff = {this.updateHighLightDiff}
+                                highLightToggle = {this.state.highLightDiffToggle}
 
                             />
+
                         </div>
 
                     </Col>

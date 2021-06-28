@@ -1,5 +1,6 @@
 import React from 'react';
 import * as d3 from 'd3';
+import BaseIDE from "../lib/codeMirror";
 
 class CodePlot extends React.Component {
     constructor(props) {
@@ -16,7 +17,7 @@ class CodePlot extends React.Component {
             'mode': 'brush'
         }
 
-        // 
+        //
         this.pointColor = '#3585ff'
         this.margin = {top: 20, right: 15, bottom: 60, left: 100};
         this.outerWidth = 800;
@@ -167,8 +168,6 @@ class CodePlot extends React.Component {
             line.attr('y1', zy(increment) + this.margin.top)
                 .attr('y2', zy(increment) + this.margin.top);
         }
-
-
     }
 
 
@@ -213,8 +212,6 @@ class CodePlot extends React.Component {
         //     });
         //
         // brushSvg.call(brush);
-
-        const _this = this;
 
     }
 
@@ -454,8 +451,6 @@ class CodePlot extends React.Component {
                     'x2': x2,
                     'y2': y2
                 })
-
-                console.log("Y1: ", _y1)
                 // Create lines on brushing...
                 this.svgParent.append('line')
                     .attr('id', 'x-initial')
@@ -532,7 +527,6 @@ class CodePlot extends React.Component {
 
 
             } else if (dim === "x") {
-                console.log("Value of y1: ", 0)
                 this.svgParent.append('line')
                     .attr('class', 'playback-line')
                     .style("stroke", "black")
@@ -660,11 +654,11 @@ class CodePlot extends React.Component {
             .attr('x', `-${this.height / 2}`)
             .attr('dy', '-3.5em')
             .attr('transform', 'rotate(-90)')
-            .text('Number of Events');
+            .text('Snapshots');
         svgChart.append('text')
             .attr('x', `${this.width / 2}`)
             .attr('y', `${this.height + 40}`)
-            .text('Final Code');
+            .text('Selection in Final Code');
 
         let _this = this;
         this.lastTransform = null;
@@ -688,9 +682,6 @@ class CodePlot extends React.Component {
                         'y1': parseInt(y_domain[1]),
                         'y2': parseInt(y_domain[0])
                     }
-                    console.log("Pann selection: ", _this.selection.x1, _this.selection.y1);
-                    console.log("Transformation: ", scaleX(_this.selection.x1), scaleY(_this.selection.y1))
-                    // console.log("Pann converted: ", this.x.invert(transform.x), this.y.invert(transform.y));
                     context.clearRect(0, 0, _this.width, _this.height);
                     // context.translate(-1*scaleX(_this.selection.x1), -1*scaleY(_this.selection.y1));
 
@@ -839,7 +830,6 @@ class CodePlot extends React.Component {
         }
     }
 
-
     render() {
         // console.log("Called render......")
         const buttonStyle = {
@@ -859,6 +849,18 @@ class CodePlot extends React.Component {
             'background-color': '#aaa',
             'color': '#282c35',
         }
+
+        const highLightButton = {
+            ...buttonStyle,
+            'float': 'none',
+            'width': '120px',
+        };
+        const clickedHighLight = {
+            ...highLightButton,
+            'background-color': '#aaa',
+            'color': '#282c35',
+        }
+
         return (
             <div style={{
                 'width': '100%',
@@ -957,10 +959,14 @@ class CodePlot extends React.Component {
                             // 'padding': '1%',
                         }}
                     >
-                        <div
+                        <div>
 
-                        >
-
+                            <button
+                                style={this.props.highLightToggle ? clickedHighLight : highLightButton}
+                                onClick={this.props.highLightDiff}>
+                                Highlight Diff
+                            </button>
+                            <br/>
                             <button
                                 style={{...buttonStyle, 'margin-left': '5px'}}
                                 onClick={this.clearSelection}>Clear
@@ -1003,24 +1009,6 @@ class CodePlot extends React.Component {
                     >
                     </div>
                 </div>
-
-                <ul
-                    style={{
-                        "float": "left",
-                        "text-align": "left"
-                    }}>
-                    <p
-                        style={{
-                            'margin': '0px',
-                            // "float": 'left'
-                        }}
-                    ><b>Shortcuts:</b></p>
-                    <li>"s" -> Selection</li>
-                    <li>"z" -> Zoom</li>
-                    <li>"p" -> Pan</li>
-                    <li>"r" -> Reset View</li>
-                    <li>"c" -> Clear Selection</li>
-                </ul>
             </div>
 
         )

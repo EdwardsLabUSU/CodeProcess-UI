@@ -5,10 +5,11 @@ import PauseIcon from '@material-ui/icons/Pause';
 import codes from '../diff_book.csv';
 import {FastForward, FastRewind} from "@material-ui/icons";
 import {Controlled as CodeMirror} from 'react-codemirror2';
+import BaseIDE from "../lib/codeMirror";
 
 // import CodeMirror from "react-code"
 
-class CodePlayback extends React.Component {
+class CodePlayback extends BaseIDE {
 
     constructor(props) {
         super(props);
@@ -22,26 +23,84 @@ class CodePlayback extends React.Component {
             'delay': 300,
             'prevStart': 0,
             'prevEnd': 0,
-            'currentIndex': props.startIndex
+            'currentIndex': props.startIndex,
         }
         this.play_icon = <PlayCircleOutlineIcon/>
+        this.editor = null;
         this.getCode = this.getCode.bind(this);
         this.playCode = this.playCode.bind(this);
         this.brushPositionChanged = this.brushPositionChanged.bind(this);
         this.currentPosition = this.currentPosition.bind(this);
+        this.blockLength = this.blockLength.bind(this);
+        this.arrowKeysHandler = this.arrowKeysHandler.bind(this);
+        this.updateCode = this.updateCode.bind(this);
+        this.progressUpdate = this.progressUpdate.bind(this);
+    }
+
+    updateCode() {
+        this.setState({
+            'code': this.props.code_blocks[this.currentPosition()]
+        })
+    }
+
+    arrowKeysHandler(event) {
+        if (event.keyCode === 37) {
+            const progress = Math.max(this.state.progress - 1, 0);
+            this.setState({
+                'progress': progress,
+            }, this.updateCode);
+            this.progressUpdate(progress);
+            // this.props.updateHighLightDiff();
+        }
+        // this.enableBrush(); // Left
+        else if (event.keyCode === 39) // Right
+        {
+            const progress = Math.min(this.state.progress + 1, this.blockLength() - 1)
+            this.setState({
+                'progress': progress
+            }, this.updateCode);
+            this.progressUpdate(progress);
+            // this.props.updateHighLightDiff();
+        }
+    }
+
+    componentDidMount() {
+        document.addEventListener('keydown', this.arrowKeysHandler, false);
+    }
+
+    componentWillUnmount() {
+        document.removeEventListener('keydown', this.arrowKeysHandler, false);
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
+        if (prevProps.loaded === false && this.props.loaded) {
+            this.setState({
+                'code': this.props.code_blocks[this.props.startIndex]
+            })
+        }
+
         if (this.props.resetPlayBackFlag) {
             this.setState({
                 'progress': -1,
                 'code': this.props.code_blocks[this.props.startIndex]
-            }, this.props.progressUpdate, -1);
+            });
             this.props.resetPlayBack(false);
+        }
+
+        if (this.props.highLightOption !== null) {
+            this.clearDiffMarkers();
+            const option = this.props.highLightOption;
+            option.snapShot.forEach((each) => {
+                // this.highlightRange(this.editor, this.state.code, each[0],
+                //     each[1]);
+                this.highlightRange(this.editor, this.state.code, each);
+            });
+        } else {
+            this.clearDiffMarkers();
         }
     }
 
-    currentPosition(){
+    currentPosition() {
         return this.props.startIndex + Math.max(this.state.progress, 0)
     }
 
@@ -55,10 +114,23 @@ class CodePlayback extends React.Component {
         )
     }
 
+    blockLength() {
+        return this.props.code_blocks.slice(this.props.startIndex, this.props.endIndex + 1).length;
+    }
+
+    progressUpdate(progress){
+        this.props.progressUpdate(progress);
+        if(progress !== -1) {
+            let lineNumber = this.props.diffLineNumber[this.currentPosition()];
+            lineNumber = Math.max(lineNumber -1 , 0);
+            this.editor.scrollIntoView({line: lineNumber, char:0})
+        }
+    }
+
     async getCode() {
         const code_blocks = this.props.code_blocks.slice(this.currentPosition(), this.props.endIndex + 1);
+        const block_length = this.blockLength()
         // console.log("Code blocks length: ", code_blocks.length, this.state.progress)
-        const block_length = this.props.code_blocks.slice(this.props.startIndex, this.props.endIndex + 1).length;
         for (const [i, _code] of code_blocks.entries()) {
             if (this.state.pause) {
                 break;
@@ -68,15 +140,15 @@ class CodePlayback extends React.Component {
                 this.setState({
                     'progress': -1
                 }, this.playCode);
+                this.progressUpdate(-1);
                 break;
             } else {
                 const progress = Math.min(this.state.progress + 1, block_length - 1);
-                console.log("This is progress: ", progress, block_length)
                 this.setState({
                     'code': _code,
                     'progress': progress,
                     'blockLength': block_length
-                }, ()=>this.props.progressUpdate(progress));
+                }, () => this.progressUpdate(progress));
             }
             await this.sleep(this.state.delay);
         }
@@ -181,12 +253,12 @@ class CodePlayback extends React.Component {
                             onChange={(e, v) => {
                                 // console.log("Changed....")
                                 // const progress = parseInt(v / 100 * (this.props.endIndex + 1 - this.props.startIndex), 10);
-                                const progress = v - this.props.startIndex ;
+                                const progress = v - this.props.startIndex;
                                 this.setState({
                                     'progress': progress,
                                     'pause': true,
                                     'code': this.props.code_blocks[v]
-                                }, this.props.progressUpdate(progress));
+                                }, this.progressUpdate(progress));
                             }}
                             aria-labelledby="continuous-slider"/>
                     </div>
@@ -210,7 +282,7 @@ class CodePlayback extends React.Component {
                         speed: {this.state.delay} ms</p>
                     <CodeMirror
                         value={this.state.code}
-                        options = {{
+                        options={{
                             'mode': 'python',
                             'theme': 'material',
                             'lineNumbers': true,
@@ -219,6 +291,7 @@ class CodePlayback extends React.Component {
                         }}
                         editorDidMount={(editor, value) => {
                             // this.editor = editor;
+                            this.editor = editor;
                             editor.setSize('100%', '350');
                         }}
                         onChange={(editor, data, value) => {
