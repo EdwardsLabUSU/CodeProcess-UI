@@ -35,6 +35,7 @@ class CodePlayback extends BaseIDE {
         this.arrowKeysHandler = this.arrowKeysHandler.bind(this);
         this.updateCode = this.updateCode.bind(this);
         this.progressUpdate = this.progressUpdate.bind(this);
+        this.highlightDiff = this.highlightDiff.bind(this);
     }
 
     updateCode() {
@@ -48,6 +49,7 @@ class CodePlayback extends BaseIDE {
             const progress = Math.max(this.state.progress - 1, 0);
             this.setState({
                 'progress': progress,
+                'pause': true
             }, this.updateCode);
             this.progressUpdate(progress);
             // this.props.updateHighLightDiff();
@@ -57,7 +59,8 @@ class CodePlayback extends BaseIDE {
         {
             const progress = Math.min(this.state.progress + 1, this.blockLength() - 1)
             this.setState({
-                'progress': progress
+                'progress': progress,
+                'pause': true
             }, this.updateCode);
             this.progressUpdate(progress);
             // this.props.updateHighLightDiff();
@@ -70,6 +73,16 @@ class CodePlayback extends BaseIDE {
 
     componentWillUnmount() {
         document.removeEventListener('keydown', this.arrowKeysHandler, false);
+    }
+
+    highlightDiff(){
+        this.clearDiffMarkers();
+        const option = this.props.highLightOption;
+        option.snapShot.forEach((each) => {
+            // this.highlightRange(this.editor, this.state.code, each[0],
+            //     each[1]);
+            this.highlightRange(this.editor, this.state.code, each);
+        });
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
@@ -88,13 +101,7 @@ class CodePlayback extends BaseIDE {
         }
 
         if (this.props.highLightOption !== null) {
-            this.clearDiffMarkers();
-            const option = this.props.highLightOption;
-            option.snapShot.forEach((each) => {
-                // this.highlightRange(this.editor, this.state.code, each[0],
-                //     each[1]);
-                this.highlightRange(this.editor, this.state.code, each);
-            });
+            this.highlightDiff();
         } else {
             this.clearDiffMarkers();
         }
@@ -258,7 +265,10 @@ class CodePlayback extends BaseIDE {
                                     'progress': progress,
                                     'pause': true,
                                     'code': this.props.code_blocks[v]
-                                }, this.progressUpdate(progress));
+                                }, ()=> this.progressUpdate(progress));
+                                this.clearDiffMarkers();
+                                if(this.props.highLightOption !== null)
+                                    this.highlightDiff();
                             }}
                             aria-labelledby="continuous-slider"/>
                     </div>

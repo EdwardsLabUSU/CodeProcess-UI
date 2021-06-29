@@ -47,6 +47,7 @@ class CodeViz extends React.Component{
     }
 
     getFileURL(folder, file){
+        // return `http://localhost:5000/data/${folder}/${file}`;
         return `https://codeviz-app.herokuapp.com/data/${folder}/${file}`;
     }
 
@@ -130,7 +131,7 @@ class CodeViz extends React.Component{
     }
 
     componentDidMount() {
-        this.loadFiles('normal');
+        this.loadFiles('LO1A2F01-U1-BM-task1');
     }
 
     resetPlayBack(value){
@@ -142,18 +143,20 @@ class CodeViz extends React.Component{
 
     changeDropDown(event){
         const student = event.target.value;
-        if(student === 'copy'){
-            this.loadFiles('copy');
-        } else if (student === "coon-task"){
-            this.loadFiles('coon-task1');
-        } else if (student === "coon-pattern"){
-            this.loadFiles('coon-pattern');
-        } else if (student === "gordon") {
-            this.loadFiles('gordon')
-        }
-        else {
-            this.loadFiles('normal');
-        }
+        console.log("Student: ", student)
+        this.loadFiles(student);
+        // if(student === 'copy'){
+        //     this.loadFiles('copy');
+        // } else if (student === "coon-task"){
+        //     this.loadFiles('coon-task1');
+        // } else if (student === "coon-pattern"){
+        //     this.loadFiles('coon-pattern');
+        // } else if (student === "gordon") {
+        //     this.loadFiles('gordon')
+        // }
+        // else {
+        //     this.loadFiles('normal');
+        // }
         this.resetPlayBack(true);
     }
 
@@ -188,9 +191,11 @@ class CodeViz extends React.Component{
     }
 
     updatePlaybackProgress(progress){
-        this.setState({'playBackProgress': progress, 'highLightOption': null});
-        if(this.state.highLightDiffToggle)
-            this.updateHighLightDiff();
+        this.setState({'playBackProgress': progress, 'highLightOption': null}, ()=>{
+            if(this.state.highLightDiffToggle)
+                this.updateHighLightDiff();
+        });
+
     }
 
     async showLoading(flag){
@@ -258,16 +263,35 @@ class CodeViz extends React.Component{
                                             <label htmlFor="student">Choose a student: </label>
                                         </h4>
 
-                                        <select name="student" id="cars" onChange={this.changeDropDown} style={{
+                                        <select name="student" onChange={this.changeDropDown} style={{
                                             'float': 'left',
                                             'margin-top': '15px',
                                             'margin-left': '10px'
                                         }}>
-                                            <option value="legitmate">Legitmate</option>
-                                            <option value="copy">Mr. Copy</option>
-                                            <option value="coon-pattern">Cooney Joseph Assgn: 8 (pattern.py)</option>
-                                            <option value="coon-task">Cooney Joseph Assgn: 8 (task1.py)</option>
-                                            <option value="gordon">Gordon</option>
+                                            <option value="LO1A2F01-U1-BM-task1">LO1A2F01 U1 BM task1</option>
+                                            <option value="LO1A2F01-U1-BM-task2">LO1A2F01 U1 BM task2</option>
+                                            <option value="LO1A2F01-U2-FP-demo">LO1A2F01 U2 FP demo</option>
+                                            <option value="LO1A2F01-U2-FP-task4">LO1A2F01 U2 FP task4</option>
+                                            <option value="LO1A2F01-U3-RA-task2">LO1A2F01 U3 RA task2</option>
+                                            <option value="LO1A3F08-U4-FP-task3">LO1A3F08 U4 FP task3</option>
+                                            <option value="LO1A3F08-U4-FP-task4">LO1A3F08 U4 FP task4</option>
+                                            <option value="LO1A3F08-U5-WA-Task3">LO1A3F08 U5 WA Task3</option>
+                                            <option value="LO1A4F16-U6-BM-pattern">LO1A4F16 U6 BM pattern</option>
+                                            <option value="LO1A4F16-U7-RA-chessboard">LO1A4F16 U7 RA chessboard</option>
+
+
+
+
+                                            {/*<option value="legitmate">Legitmate</option>*/}
+                                            {/*<option value="copy">Mr. Copy</option>*/}
+                                            {/*<option value="coon-pattern">Cooney Joseph Assgn: 8 (pattern.py)</option>*/}
+                                            {/*<option value="coon-task">Cooney Joseph Assgn: 8 (task1.py)</option>*/}
+                                            {/*<option value="gordon">Gordon</option>*/}
+
+                                            {/*<option value="LO1A2F01-U1-task2">U1 (task2)</option>*/}
+                                            {/*<option value="LO1A2F01-U1-task#2-2">U1 (task2.2)</option>*/}
+                                            {/*<option value="LO1A2F01-U2-task4">U2 (task4)</option>*/}
+                                            {/*<option value="LO1A2F01-U3-task2">U3 (task2)</option>*/}
 
                                         </select>
                                     </center>
