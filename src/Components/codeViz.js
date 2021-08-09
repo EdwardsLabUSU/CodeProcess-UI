@@ -3,6 +3,7 @@ import {Col, Grid, Row} from "react-flexbox-grid";
 import CodeHighlighter from "./highlighter";
 import CodePlayback from "./codePlayback";
 import CodePlot from "./historyPlot_new";
+import JSZip from "jszip";
 const zlib = require('zlib');
 // import '../data/';
 // import codes from "../data/diff_book.csv";
@@ -51,9 +52,42 @@ class CodeViz extends React.Component{
         return `https://codeviz-app.herokuapp.com/data/${folder}/${file}`;
     }
 
+
+
     loadFiles(dir){
+
+
+        const fetch_file = function (file_name, callback){
+            console.log("Fetching...", file_name)
+            fetch(_this.getFileURL(dir, file_name.split('.')[0] + ".zip"))
+                .then(function (response) {                       // 2) filter on 200 OK
+                    if (response.status === 200 || response.status === 0) {
+                        return Promise.resolve(response.blob());
+                    } else {
+                        console.log("Server error... 500")
+                        return "Error"
+                    }
+                })
+                .then(JSZip.loadAsync)                            // 3) chain with the zip promise
+                .then(function (zip) {
+                    const text = zip.file(file_name).async("string"); // 4) chain with the text content promise
+                    console.log("Fetched:   ", file_name)
+                    return text
+                })
+                .then(callback)};
+
         const _this = this;
-        const diffBookLoader = function (codes) {
+
+        const diffBookLoader = function () {
+            fetch_file('diff_book.csv', (text)=> {
+                _this.setState({
+                    'code_blocks': JSON.parse(text),
+                    'playBackIndex': 0,
+                    'endPlayBackIndex': 0,
+                });
+            })}
+
+        const _diffBookLoader = function (codes) {
             fetch(_this.getFileURL(dir, 'diff_book.csv'))
                 // .then(r => zlib.gunzip(r, (err, dezipped) => dezipped.toString()))
                 .then(r => r.text())
@@ -67,7 +101,14 @@ class CodeViz extends React.Component{
                 });
         }
 
-        const finalCodeLoader = function (finalCode){
+        const finalCodeLoader = function () {
+            fetch_file('code_book.txt', (text)=> {
+                _this.setState({
+                    'code': text,
+                });
+            })}
+
+        const _finalCodeLoader = function (finalCode){
             fetch(_this.getFileURL(dir, 'code_book.txt'))
                 .then(r => r.text())
                 .then(text => {
@@ -77,19 +118,36 @@ class CodeViz extends React.Component{
                 });
         }
 
-        const gridPointLoader = function (grid){
-            fetch(_this.getFileURL(dir, 'grid_point.json'))
-                .then(r => r.text())
-                .then(text => {
-                    _this.setState({
-                        'grid_points': JSON.parse(text),
-                        'user': dir,
-                        'loaded': true
-                    })
-                });
-        }
+        // const gridPointLoader = function (grid){
+        //     fetch(_this.getFileURL(dir, 'grid_point.json'))
+        //         .then(r => r.text())
+        //         .then(text => {
+        //             _this.setState({
+        //                 'grid_points': JSON.parse(text),
+        //                 'user': dir,
+        //                 'loaded': true
+        //             })
+        //         });
+        // }
 
-        const matchBlockLoader = function (){
+        const gridPointLoader = function () {
+            fetch_file('grid_point.json', (text)=> {
+            _this.setState({
+                'grid_points': JSON.parse(text),
+                'user': dir,
+                'loaded': true
+            });
+        })}
+
+
+        const matchBlockLoader = function () {
+            fetch_file('match_block.json', (text)=> {
+                _this.setState({
+                    'match_blocks': JSON.parse(text)
+                })
+            })}
+
+        const _matchBlockLoader = function (){
             fetch(_this.getFileURL(dir, 'match_block.json'))
                 .then(r => r.text())
                 .then(text => {
@@ -100,15 +158,22 @@ class CodeViz extends React.Component{
         }
 
 
-        const diffLineLoader = function (){
-            fetch(_this.getFileURL(dir, 'diff_line.json'))
-                .then(r => r.text())
-                .then(text => {
-                    _this.setState({
-                        'diff_line': JSON.parse(text)
-                    })
-                });
-        }
+        const diffLineLoader = function () {
+            fetch_file('diff_line.json', (text)=> {
+                _this.setState({
+                    'diff_line': JSON.parse(text)
+                })
+            })}
+
+        // const _diffLineLoader = function (){
+        //     fetch(_this.getFileURL(dir, 'diff_line.json'))
+        //         .then(r => r.text())
+        //         .then(text => {
+        //             _this.setState({
+        //                 'diff_line': JSON.parse(text)
+        //             })
+        //         });
+        // }
         this.setState({
             'loaded': false,
             'user': null,
@@ -121,9 +186,9 @@ class CodeViz extends React.Component{
             'endPlayBackIndex': 0
 
         }, ()=>{
+            gridPointLoader(dir);
             finalCodeLoader(dir);
             diffBookLoader(dir);
-            gridPointLoader(dir);
             matchBlockLoader(dir);
             diffLineLoader(dir);
         });
@@ -144,7 +209,10 @@ class CodeViz extends React.Component{
     changeDropDown(event){
         const student = event.target.value;
         console.log("Student: ", student)
-        this.loadFiles(student);
+        this.setState({
+            'loaded': false
+        }, this.loadFiles(student));
+
         // if(student === 'copy'){
         //     this.loadFiles('copy');
         // } else if (student === "coon-task"){
@@ -241,15 +309,19 @@ class CodeViz extends React.Component{
         return(
             <Grid fluid>
                 <Row>
-                    <Col xs={1} sm={1} md={1} lg={1} >
-                    </Col>
+                    {/*<Col xs={1} sm={1} md={1} lg={1} >*/}
+                    {/*</Col>*/}
 
-                    <Col xs={11} sm={10} md={6} lg={6}>
-
+                    <div
+                        // xs={11} sm={10} md={12} lg={5} xl={4}
+                        className={'viz-col'}
+                    >
                         <Row>
 
                             <div className={'card-body'} style={{
-                                'width': '100%'
+                                'width': '100%',
+                                'height': '100%',
+                                'background-color': 'white'
 
                             }}>
                                 <div className={'code-block-header'} style={{
@@ -260,7 +332,7 @@ class CodeViz extends React.Component{
                                             'float': 'left',
                                             'margin-left': '40%'
                                         }}>
-                                            <label htmlFor="student">Choose a student: </label>
+                                            <label htmlFor="student">Submission: </label>
                                         </h4>
 
                                         <select name="student" onChange={this.changeDropDown} style={{
@@ -268,16 +340,18 @@ class CodeViz extends React.Component{
                                             'margin-top': '15px',
                                             'margin-left': '10px'
                                         }}>
-                                            <option value="LO1A2F01-U1-BM-task1">LO1A2F01 U1 BM task1</option>
-                                            <option value="LO1A2F01-U1-BM-task2">LO1A2F01 U1 BM task2</option>
-                                            <option value="LO1A2F01-U2-FP-demo">LO1A2F01 U2 FP demo</option>
-                                            <option value="LO1A2F01-U2-FP-task4">LO1A2F01 U2 FP task4</option>
-                                            <option value="LO1A2F01-U3-RA-task2">LO1A2F01 U3 RA task2</option>
-                                            <option value="LO1A3F08-U4-FP-task3">LO1A3F08 U4 FP task3</option>
-                                            <option value="LO1A3F08-U4-FP-task4">LO1A3F08 U4 FP task4</option>
-                                            <option value="LO1A3F08-U5-WA-Task3">LO1A3F08 U5 WA Task3</option>
-                                            <option value="LO1A4F16-U6-BM-pattern">LO1A4F16 U6 BM pattern</option>
-                                            <option value="LO1A4F16-U7-RA-chessboard">LO1A4F16 U7 RA chessboard</option>
+                                            <option value="LO1A2F01-U1-BM-task1">Student 1</option>
+                                            <option value="LO1A2F01-U1-BM-task2">Student 2</option>
+                                            <option value="LO1A2F01-U2-FP-demo">Student 3</option>
+                                            <option value="LO1A2F01-U2-FP-task4">Student 4</option>
+                                            <option value="LO1A2F01-U3-RA-task2">Student 5</option>
+                                            <option value="LO1A3F08-U4-FP-task3">Student 6</option>
+                                            <option value="LO1A3F08-U4-FP-task4">Student 7</option>
+                                            <option value="LO1A3F08-U5-WA-Task3">Student 8</option>
+                                            <option value="LO1A4F16-U6-BM-pattern">Student 9</option>
+                                            <option value="LO1A4F16-U7-RA-chessboard">Student 10</option>
+                                            <option value="LO1A7M08-TG-Unit7-main">Student 11</option>
+
 
 
 
@@ -299,7 +373,7 @@ class CodeViz extends React.Component{
 
                                 {!this.state.loaded ? <img
                                     // id={'loading'} className={'loading'}
-                                    src={process.env.PUBLIC_URL+ "/img/loading.gif"}/> :
+                                    src={process.env.PUBLIC_URL+ "/img/loading.gif"} width={window.innerWidth * 0.4} height={window.innerHeight * 0.6}/> :
                                     // <p></p> }
                                 <CodePlot
                                     resetPlayBack = {this.resetPlayBack}
@@ -315,15 +389,22 @@ class CodeViz extends React.Component{
                                     highLightToggle = {this.state.highLightDiffToggle}
                                 />
                                 }
+
+
                                 <ul
+                                    // style={{this.state.loaded ? {
+                                    //     "float": "left",
+                                    //     "text-align": "left"
+                                    // } :  }>
+                                    className={'shortcut-div'}
                                     style={{
                                         "float": "left",
-                                        "text-align": "left"
+                                        "text-align": "left",
+                                        "padding-top":"0px"
                                     }}>
                                     <p
                                         style={{
                                             'margin': '0px',
-                                            // "float": 'left'
                                         }}
                                     ><b>Shortcuts:</b></p>
                                     <li>"s" -> Selection</li>
@@ -331,7 +412,10 @@ class CodeViz extends React.Component{
                                     <li>"p" -> Pan</li>
                                     <li>"r" -> Reset View</li>
                                     <li>"c" -> Clear Selection</li>
+                                    <li>"SpaceBar" -> Pause/Play Playback Window</li>
+                                    <li>"["/"]" Left and Right Bracket to control playback</li>
                                 </ul>
+
                             </div>
 
 
@@ -368,23 +452,34 @@ class CodeViz extends React.Component{
 
 
 
-                    </Col>
-                    <Col xs={12} sm={10} md={4} lg={4}>
-                        <div>
-                            <CodePlayback
-                                // key={this.state.user+'-playback'}
-                                startChar = {this.state.startIndex}
-                                code_blocks = {this.state.code_blocks}
-                                startIndex = {this.state.playBackIndex}
-                                endIndex = {this.state.endPlayBackIndex}
-                                resetPlayBack = {this.resetPlayBack}
-                                resetPlayBackFlag = {this.state.resetPlayBack}
-                                progressUpdate = {this.updatePlaybackProgress}
-                                highLightOption = {this.state.highLightOption}
-                                loaded={this.state.loaded}
-                                updateHighLightDiff = {this.updateHighLightDiff}
-                                diffLineNumber = {this.state.diff_line}
-                            />
+                    </div>
+                    <div
+                        // xs={12} sm={10} md={12} lg={3} xl={4}
+                        className={'playBack-col'}
+                        // style={{
+                        //     'width': '27%',
+                        //     'margin-left':'1%',
+                        //     // 'margin-right':'1%'
+                        // }}
+                    >
+                        <CodePlayback
+                            // key={this.state.user+'-playback'}
+                            startChar = {this.state.startIndex}
+                            code_blocks = {this.state.code_blocks}
+                            startIndex = {this.state.playBackIndex}
+                            endIndex = {this.state.endPlayBackIndex}
+                            resetPlayBack = {this.resetPlayBack}
+                            resetPlayBackFlag = {this.state.resetPlayBack}
+                            progressUpdate = {this.updatePlaybackProgress}
+                            highLightOption = {this.state.highLightOption}
+                            loaded={this.state.loaded}
+                            updateHighLightDiff = {this.updateHighLightDiff}
+                            diffLineNumber = {this.state.diff_line}
+                            code = {this.state.code}
+                        />
+                        <div style={{
+                            'margin-top': '1%'
+                        }}>
                             <CodeHighlighter
                                 // key={this.state.user+'-highlighter'}
                                 {...this.state}
@@ -393,16 +488,36 @@ class CodeViz extends React.Component{
                                 highLightToggle = {this.state.highLightDiffToggle}
 
                             />
-
                         </div>
 
-                    </Col>
+                    </div>
+                    {/*<div*/}
+                    {/*    className={'final-code-col'}*/}
 
-                    <Col xs={1} sm={1} md={1} lg={1} >
-                    </Col>
+                    {/*     // style={{*/}
+                    {/*     //     'width': '27.5%',*/}
+                    {/*     //     'margin-left': '0.5%',*/}
+                    {/*     //     'margin-right': '0'*/}
+                    {/*     // }}*/}
+                    {/*>*/}
+                    {/*    <div>*/}
+
+                    {/*        <CodeHighlighter*/}
+                    {/*            // key={this.state.user+'-highlighter'}*/}
+                    {/*            {...this.state}*/}
+                    {/*            highLightDiff = {this.highLightDiff}*/}
+                    {/*            updateHighLightDiff = {this.updateHighLightDiff}*/}
+                    {/*            highLightToggle = {this.state.highLightDiffToggle}*/}
+
+                    {/*        />*/}
+
+                    {/*    </div>*/}
+
+                    {/*</div>*/}
                 </Row>
                 {/*<Row>*/}
-                {/*    <CodePlot change_selection = {this.changeSelectionRange}/>*/}
+                {/*    <CodePlot ch
+     ange_selection = {this.changeSelectionRange}/>*/}
                 {/*</Row>*/}
             </Grid>
         )

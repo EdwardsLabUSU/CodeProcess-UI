@@ -14,7 +14,7 @@ function App() {
       return (
         <div className="App">
             <div style={{
-                'margin-top': '1%'
+                'margin-top': '0%'
             }}>
 
             </div>

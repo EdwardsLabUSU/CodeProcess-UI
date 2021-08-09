@@ -10,7 +10,6 @@ import BaseIDE from "../lib/codeMirror";
 // import CodeMirror from "react-code"
 
 class CodePlayback extends BaseIDE {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -24,6 +23,8 @@ class CodePlayback extends BaseIDE {
             'prevStart': 0,
             'prevEnd': 0,
             'currentIndex': props.startIndex,
+            'scroll': true,
+            // 'code': this.props.code.split('\n').map(()=> '\n').join('')
         }
         this.play_icon = <PlayCircleOutlineIcon/>
         this.editor = null;
@@ -45,17 +46,17 @@ class CodePlayback extends BaseIDE {
     }
 
     arrowKeysHandler(event) {
-        if (event.keyCode === 37) {
+        if (event.keyCode === 219) {
             const progress = Math.max(this.state.progress - 1, 0);
             this.setState({
                 'progress': progress,
                 'pause': true
             }, this.updateCode);
             this.progressUpdate(progress);
-            // this.props.updateHighLightDiff();
+            // this.props.update{/*editor.markText({line:1,ch:1},{line:13,ch:1},{readOnly:false})*/}HighLightDiff();
         }
         // this.enableBrush(); // Left
-        else if (event.keyCode === 39) // Right
+        else if (event.keyCode === 221) // Right
         {
             const progress = Math.min(this.state.progress + 1, this.blockLength() - 1)
             this.setState({
@@ -64,6 +65,10 @@ class CodePlayback extends BaseIDE {
             }, this.updateCode);
             this.progressUpdate(progress);
             // this.props.updateHighLightDiff();
+        } else if(event.keyCode === 32) {
+            this.setState({
+                'pause': !this.state.pause
+            }, this.getCode)
         }
     }
 
@@ -130,7 +135,17 @@ class CodePlayback extends BaseIDE {
         if(progress !== -1) {
             let lineNumber = this.props.diffLineNumber[this.currentPosition()];
             lineNumber = Math.max(lineNumber -1 , 0);
-            this.editor.scrollIntoView({line: lineNumber, char:0})
+            if(this.state.scroll)
+            {
+                this.editor.focus();
+                this.editor.setCursor({line: lineNumber, ch: null})
+                var t = this.editor.charCoords({line: lineNumber - 1, ch: 0}, "local").top;
+                var middleHeight = this.editor.getScrollerElement().offsetHeight / 2;
+                this.editor.scrollTo(null, t - middleHeight - 5);
+
+                // this.editor.scrollIntoView({line: lineNumber, char:0}, 0)
+            }
+                // this.editor.scrollTo({line: lineNumber, char:0})
         }
     }
 
@@ -188,16 +203,26 @@ class CodePlayback extends BaseIDE {
     render() {
         // TODO: Fix playback progress bug when changed index.
         return (
-            <div id='code-playback' className={'code-block card-body'}>
-                <div className={'code-block-header'}>
+            <div className={'card-body'} style={{
+                height: '50%'
+            }}>
+                <div className={'code-block-header'}
+                     style={{
+                         // 'height': '10%',
+                         'padding-bottom': '0%'
+                     }}>
                     <div style={{
                         'float': 'left',
-                        'margin-left': '2%',
+                        'margin-left': '1%',
                         'width': '20%',
                         // 'border': '1px solid white',
-                        'margin-bottom': '2%',
+                        // 'margin-bottom': '2%'
                     }}>
-                        <h4>Code Playback</h4>
+                        <h4 style={{
+                            'margin-top': '25px',
+                            'margin-bottom': '5px'
+                        }}
+                        >Code Playback</h4>
                     </div>
 
 
@@ -208,10 +233,12 @@ class CodePlayback extends BaseIDE {
                         // 'border': '1px solid white',
                         'margin-bottom': '0%',
                         // 'border-radius': '5px 5px 0px 0px',
-                        'padding-top': '1.5%'
+                        'padding-top': '1%',
+                        'padding-bottom': '0%'
 
 
                     }}>
+
                         <button style={{
                             'color': 'black',
                             'background': 'white',
@@ -246,6 +273,7 @@ class CodePlayback extends BaseIDE {
                             onClick={() => this.setState({'delay': Math.max(10, this.state.delay - 50)})}>
                             <FastForward/>
                         </button>
+
                         <Slider
                             style={{
                                 'width': '90%',
@@ -274,27 +302,59 @@ class CodePlayback extends BaseIDE {
                     </div>
 
 
+
+
                 </div>
-                <div style={{
-                    // 'background-color': '#f6f6f6',
-                    // 'border': '1px solid black',
-                    'box-shadow': ' 0 4px 8px 0 rgba(0,0,0,0.2)',
-                    'min-height': '200px',
-                    'text-align': 'left'
-                }}>
+
+                <div
+                    style={{
+                        'background-color': '#ddd',
+                        // 'border': '1px solid black',
+                        // 'box-shadow': ' 0 4px 8px 0 rgba(0,0,0,0.2)',
+                        'min-height': '10px',
+                        'text-align': 'left',
+                        'padding-top': '1px',
+                        // 'padding-bottom': '1px'
+
+                        // 'margin': '0px'
+                    }}
+                >
                     <p style={{
-                        'margin-left': '2%'
+                        'background-color': '#ddd',
+                        'margin-left': '2%',
+                        'margin-top': '1%',
+                        'margin-bottom': '0'
                     }}>
                         {/*{()=> ((this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo')()}*/}
                         {/*{(this.props.startIndex === this.state.prevStart) ? (this.props.startIndex + this.state.progress)  :  'Prakriti aloo'}*/}
                         Events: {this.currentPosition()}
-                        /{this.props.endIndex}. Playback
-                        speed: {this.state.delay} ms</p>
+                        /{this.props.endIndex}. Speed: {this.state.delay} ms |
+                        <input
+                            type="checkbox" label={"Auto Scroll"}
+                            checked={this.state.scroll}
+                            onClick={() => {
+                                this.setState({
+                                    'scroll': !this.state.scroll
+                                });
+                            }}
+                        /> Scroll
+                    </p>
+                </div>
+
+            <div
+                id='code-playback'
+                className={'code-block'}
+                style={{
+                    'height': window.innerHeight * 0.34
+                }}
+            >
+
+                <div className={'code-mirror'}>
                     <CodeMirror
                         value={this.state.code}
                         options={{
                             'mode': 'python',
-                            'theme': 'material',
+                            'theme': 'default',
                             'lineNumbers': true,
                             'direction': 'ltr',
                             // 'inputStyle': 'textarea'
@@ -302,7 +362,10 @@ class CodePlayback extends BaseIDE {
                         editorDidMount={(editor, value) => {
                             // this.editor = editor;
                             this.editor = editor;
-                            editor.setSize('100%', '350');
+                            // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.39 + 'px'
+                            // editor.getScrollerElement().style.boxShadow = '0px';
+                            editor.setSize('100%', "auto");
+                            // editor.setSize('100%', (window.innerHeight * 0.3) + 'px');
                         }}
                         onChange={(editor, data, value) => {
                             // editor.focus();
@@ -314,6 +377,7 @@ class CodePlayback extends BaseIDE {
                     {/*</p>*/}
                 </div>
 
+            </div>
             </div>
         )
 

@@ -107,47 +107,42 @@ class CodeHighlighter extends BaseIDE{
 
     render() {
         return (
-            <div id="highlighter" className={'code-block card-body'}>
-                <div className={'code-block-header'}>
-                    <h4>Final Code</h4>
+            <div id="highlighter" className={'code-block card-body'}
+                 style={{
+                     'height': window.innerHeight * 0.48
+                 }}
+            >
+                <div className={'code-block-header'}
+                     style={{
+                         'height': '10%',
+                         'padding-bottom': '0%'
+                     }}
+                >
+                    <h4 style={{
+                        'margin-top': '1%'
+                    }}>Final Code</h4>
                 </div>
                 {/*Pre highlight*/}
                 <div style={{
                     'text-align': 'left'
                 }}>
-                    {/*editor.markText({line:1,ch:1},{line:13,ch:1},{readOnly:false})*/}
                     <CodeMirror
                         // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}
                         value = {this.props.code}
                         options = {{
                             'mode': 'python',
-                            'theme': 'material',
+                            'theme': 'default',
                             'lineNumbers': true,
-                            'direction': 'ltr',
-                            // 'inputStyle': 'textarea'
+                            'direction': 'ltr'
                         }}
                         editorDidMount={(editor, value) => {
                             this.editor = editor;
-                            editor.setSize('100%', '350');
+                            // editor.setM
+                            // editor.getScrollerElement().style.minHeight = '350px'
+                            editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;
+                            editor.setSize('100%', 'auto');
                         }}
-
-
                     />
-                    {/*<p>*/}
-                    {/*<span id="pre_highlight">*/}
-                    {/*    {this.preHighLight()}*/}
-                    {/*</span>*/}
-                    {/*    /!*Code HighLight*!/*/}
-                    {/*    <span id="highlighted"  style={{*/}
-                    {/*        'background-color': 'orange'*/}
-                    {/*    }}>*/}
-                    {/*    {this.HighLighted()}*/}
-                    {/*</span>*/}
-                    {/*    /!*Post Highlight*!/*/}
-                    {/*    <span id="post_highlighted">*/}
-                    {/*    {this.postHighLight()}*/}
-                    {/*</span>*/}
-                    {/*</p>*/}
                 </div>
 
 

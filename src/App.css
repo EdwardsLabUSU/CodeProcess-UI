@@ -1,5 +1,5 @@
 body {
-  background: linear-gradient(to bottom, #ddd 0%, #ddd 40%, #fff 40%, #fff 100%);
+  /*background: linear-gradient(to bottom, #ddd 0%, #ddd 40%, #fff 40%, #fff 100%);*/
 }
 .App {
   text-align: center;
@@ -60,21 +60,39 @@ body {
 }
 
 .code-block {
-  background-color: #f6f6f6;
-  margin-bottom: 2%;
+  background-color: #fff;
+  overflow: auto;
+  resize: vertical;
+  /*margin-bottom: 2%;*/
+}
+
+.code-mirror{
+  /*resize: vertical;*/
+  overflow: auto;
+  text-align: left;
+  /*height: 50%;*/
 }
 
 .card-body {
   box-shadow: 0 0 5px #888;
   border: 5px solid black;
+  /*height: 50%;*/
+  /*background-color: #263238;*/
+  background-color: white;
+  /*overflow: auto;*/
+  /*resize: vertical;*/
 }
 
 .code-block-header {
   background-color: #282c35;
   color: white;
   /*border-radius: 15px 15px 0px 0px;*/
-  padding-top: 10px;
+  /*padding-top: 10px;*/
+  /*width: 10%;*/
+  /*height: 10%;*/
   overflow:hidden;
+  /*position: sticky!important;*/
+  /*position: fixed;*/
 }
 
 .code-text {
@@ -107,3 +125,93 @@ body {
 .active-button{
   background-color: green;
 }
+
+ /*For Tablets */
+  @media (min-width: 780px) and (max-width: 1280px) {
+    .viz-col {
+      display: table-cell;
+      height: 100%;
+      width: 60%;
+      /*width: 100% !important;*/
+      margin-left: 1% !important;
+    }
+    .playBack-col {
+        display: table-cell;
+         width: 26%;
+         margin-left:1%;
+         margin-right:1%;
+    }
+    .final-code-col {
+      display: table-cell;
+      width: 27%;
+      /*margin-left:1%;*/
+      margin-right:1%;
+    }
+
+  }
+
+@media (max-width: 1900px) {
+  .viz-col {
+    height: 100% !important;
+    width: 60% !important;
+    /*margin-left: 1% !important;*/
+  }
+  .playBack-col {
+    height: 100% !important;
+    width: 40% !important;
+    /*margin-left:1% !important;*/
+    /*margin-right:1% !important;*/
+  }
+  .final-code-col {
+    width: 19% !important;
+    /*margin-left:1% !important;*/
+    /*margin-right:1% !important;*/
+  }
+  /*.shortcut-div {*/
+  /*  margin-top: 1% !important;*/
+  /*}*/
+}
+  @media (max-width: 2800px) {
+    .viz-col {
+      height: 100% !important;
+      width: 43% !important;
+      /*margin-left: 1% !important;*/
+    }
+    .playBack-col {
+      height: 100% !important;
+      width: 56% !important;
+      margin-left:1% !important;
+      /*margin-right:1% !important;*/
+    }
+    .final-code-col {
+      width: 27% !important;
+      /*margin-left:1% !important;*/
+      margin-right:1% !important;
+    }
+    /*.shortcut-div {*/
+    /*  margin-top: 4% !important;*/
+    /*}*/
+  }
+  @media (min-width: 2800px) {
+    .viz-col {
+      height: 100% !important;
+      width: 45% !important;
+      margin-left: 1% !important;
+  }
+    .playBack-col {
+      height: 100% !important;
+      width: 52% !important;
+      margin-left:1% !important;
+      margin-right:1% !important;
+    }
+    .final-code-col {
+      width: 67% !important;
+      height: 50% !important;
+      /*margin-left:1% !important;*/
+      margin-right:1% !important;
+    }
+    /*.shortcut-div {*/
+    /*  margin-top: 20% !important;*/
+    /*}*/
+}
+

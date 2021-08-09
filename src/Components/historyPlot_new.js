@@ -19,11 +19,18 @@ class CodePlot extends React.Component {
 
         //
         this.pointColor = '#3585ff'
+        // this.margin = {top: '2%', right: '2%', bottom: '2%', left: '2%'};
         this.margin = {top: 20, right: 15, bottom: 60, left: 100};
-        this.outerWidth = 800;
-        this.outerHeight = 600;
+        // this.outerWidth = 800;
+        // this.outerHeight = 600;
+        this.outerHeight = window.innerHeight * 0.6
+        this.outerWidth = window.innerWidth * 0.6 * 0.7
+        // this.outerWidth = '80%';
+        // this.outerHeight = '80%';
         this.width = this.outerWidth - this.margin.left - this.margin.right;
         this.height = this.outerHeight - this.margin.top - this.margin.bottom;
+        // this.width = '76%'
+        // this.height = '76%'
         this.max_x_domain = null;
         this.max_y_domain = null;
 
@@ -387,6 +394,9 @@ class CodePlot extends React.Component {
                 // selection.attr('width', posValue * scale).attr('height', posValue);
                 _this.lastBrushSelection = {x1: minX, x2: maxX, y1: minY, y2: maxY};
             } else if (dim === 'x') {
+                const x_posValue = Math.abs(x_distance);
+                selection.attr('width', x_posValue)
+                // selection.attr('width', x * scale).attr('height', y_posValue);
                 _this.lastBrushSelection = {x1: minX, x2: maxX, y1: 0, y2: this.height};
             } else if (dim === 'y') {
                 _this.lastBrushSelection = {x1: 0, x2: this.width, y1: minY, y2: maxY};
@@ -834,11 +844,11 @@ class CodePlot extends React.Component {
         // console.log("Called render......")
         const buttonStyle = {
             'float': 'left',
-            'padding': 5,
-            'margin-top': '13px',
-            'margin-left': '10px',
-            'margin-right': '2px',
-            'width': '60px',
+            'padding': '1%',
+            'margin-top': '3%',
+            'margin-left': '1%',
+            'margin-right': '1%',
+            'width': '25%',
             'background-color': '#282c35',
             'color': 'white',
             'border': 'none',
@@ -852,7 +862,7 @@ class CodePlot extends React.Component {
 
         const highLightButton = {
             ...buttonStyle,
-            'float': 'none',
+            // 'float': 'none',
             'width': '120px',
         };
         const clickedHighLight = {
@@ -897,7 +907,7 @@ class CodePlot extends React.Component {
                             'margin-left': this.margin.left,
                             'margin-right': this.margin.right,
                             'margin-bottom': '0px',
-                            'height': '60px'
+                            'height': '40px'
                         }}
                     >
 
@@ -905,7 +915,7 @@ class CodePlot extends React.Component {
                             className={'button-group'}
                             style={{
                                 'display': 'table-cell',
-                                // 'width': '70%',
+                                'width': '40%',
                                 'border': '1px solid black',
                                 // 'margin-left': this.margin.left
                             }}
@@ -940,33 +950,18 @@ class CodePlot extends React.Component {
                             style={{
                                 // 'float': 'right',
                                 'display': 'table-cell',
-                                // 'width': 'auto',
-                                // 'border': '1px solid black',
+                                'width': '60%',
+                                'border': '1px solid black',
                                 // 'margin-left': '51%',
                                 // 'margin-right': this.margin.right
                             }}
                         >
-
-
-                        </div>
-                    </div>
-                    <div
-                        style={{
-                            'margin-right': '5px',
-                            'float': 'right',
-                            'margin-top': '20%',
-                            'border': '1px solid black',
-                            // 'padding': '1%',
-                        }}
-                    >
-                        <div>
-
                             <button
                                 style={this.props.highLightToggle ? clickedHighLight : highLightButton}
                                 onClick={this.props.highLightDiff}>
                                 Highlight Diff
                             </button>
-                            <br/>
+                            {/*<br/>*/}
                             <button
                                 style={{...buttonStyle, 'margin-left': '5px'}}
                                 onClick={this.clearSelection}>Clear
@@ -976,18 +971,29 @@ class CodePlot extends React.Component {
                                 onClick={this.resetCanvas}>Reset
                             </button>
                         </div>
-                        <ul
-                            style={{
-                                'text-align': 'left',
-                                'margin-right': '5px',
-                                'margin-top': '45px'
-                            }}
-                        >
-                            <li id={'test-text'}>Zoom: {parseInt(this.state.zoom)}x</li>
-                            <li>Mode: {this.state.mode}</li>
-                            <li>{this.state.plotting ? 'Loading' : 'Loaded'}</li>
-                        </ul>
                     </div>
+                    {/*<div*/}
+                    {/*    style={{*/}
+                    {/*        'margin-right': '5px',*/}
+                    {/*        'float': 'right',*/}
+                    {/*        'margin-top': '20%',*/}
+                    {/*        'border': '1px solid black',*/}
+                    {/*        // 'padding': '1%',*/}
+                    {/*    }}*/}
+                    {/*>*/}
+
+                    {/*    <ul*/}
+                    {/*        style={{*/}
+                    {/*            'text-align': 'left',*/}
+                    {/*            'margin-right': '5px',*/}
+                    {/*            'margin-top': '45px'*/}
+                    {/*        }}*/}
+                    {/*    >*/}
+                    {/*        <li id={'test-text'}>Zoom: {parseInt(this.state.zoom)}x</li>*/}
+                    {/*        <li>Mode: {this.state.mode}</li>*/}
+                    {/*        <li>{this.state.plotting ? 'Loading' : 'Loaded'}</li>*/}
+                    {/*    </ul>*/}
+                    {/*</div>*/}
 
 
                 </div>
@@ -998,7 +1004,7 @@ class CodePlot extends React.Component {
                     style={{
                         margin: 'auto',
                         width: '100%',
-                        height: '600px',
+                        height: window.innerHeight * 0.6,
                         'text-align': 'left',
 
                     }}>
