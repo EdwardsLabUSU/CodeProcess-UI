@@ -762,6 +762,7 @@ class CodePlot extends React.Component {
             // context.fillStyle = _this.pointColor;
             // context.fillStyle = '#ffffff';
             context.strokeStyle = "rgba(166, 166, 166, 1)";
+            context.fillStyle = "rgba(166, 166, 166, 1)";
             // context.strokeStyle = 'blue';
             // context.strokeStyle = '#a6a6a6';
 
@@ -772,11 +773,12 @@ class CodePlot extends React.Component {
             pointHeight = _this.height/_this.max_y_domain;
             pointWidth = _this.width/_this.max_x_domain;
             // context.arc(px, py, 0.4*k, 0, 2 * Math.PI, true);
-            context.strokeRect(px, py, Math.abs(pointWidth)*k , Math.abs(pointHeight)*k );
+            // context.strokeRect(px, py, Math.abs(pointWidth)*k , Math.abs(pointHeight)*k );
+            context.rect(px, py, Math.abs(pointWidth)*k , Math.abs(pointHeight)*k );
             // context.rect(px, py, (pointWidth) * k, (pointHeight) * k, true);
             // context.rect(px, py, 2.5 * k, 2.5 * k);
-            context.stroke();
-            // context.fill();
+            // context.stroke();
+            context.fill();
         }
 
         // Zoom/Drag handler
