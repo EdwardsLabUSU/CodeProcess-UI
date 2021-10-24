@@ -35,7 +35,7 @@ class CodeHighlighter extends BaseIDE{
     componentDidUpdate(prevProps, prevState, snapshot) {
         {/*editor.markText({line:1,ch:1},{line:13,ch:1},{readOnly:false})*/}
         // console.log("Marked text.... : ", this.editor)
-        if(this.editor !== null && (prevProps.startIndex != this.props.startIndex || this.props.chars != prevProps.chars)) {
+        if(this.editor !== null && (prevProps.startIndex !== this.props.startIndex || this.props.chars !== prevProps.chars)) {
             // return this.props.highlight ? this.props.code.slice(this.props.startIndex, this.props.startIndex + this.props.chars) : '';
             const preHighlight = this.props.code.slice(0, this.props.startIndex);
             const preCodeLines = preHighlight.split('\n');
@@ -62,14 +62,15 @@ class CodeHighlighter extends BaseIDE{
             let postcodeLine = postCodeLines.length;
             let scrollTo = preCodeLine;
             let lastLine = this.props.code.split('\n').length;
-            if(preCodeLine  > 20) {
-                if ((preCodeLine + 20) < lastLine) {
-                    scrollTo = preCodeLine + 20
-                }
-            } else {
-                scrollTo = 0
-            }
-            this.editor.scrollIntoView({line: scrollTo, char:0})
+            // if(preCodeLine  > 20) {
+            //     if ((preCodeLine + 20) < lastLine) {
+            //         scrollTo = preCodeLine + 20
+            //     }
+            //
+            // } else {
+            //     scrollTo = 0
+            // }
+            this.editor.scrollTo({line: scrollTo, char:0})
             console.log('Highlight Toggle: ', this.props.highLightToggle)
             if(this.props.highLightToggle) {
                 console.log("Clear highlight...")
@@ -106,48 +107,84 @@ class CodeHighlighter extends BaseIDE{
     }
 
     render() {
-        return (
-            <div id="highlighter" className={'code-block card-body'}
-                 style={{
-                     'height': window.innerHeight * 0.48
-                 }}
-            >
-                <div className={'code-block-header'}
-                     style={{
-                         'height': '10%',
-                         'padding-bottom': '0%'
-                     }}
-                >
-                    <h4 style={{
-                        'margin-top': '1%'
-                    }}>Final Code</h4>
-                </div>
-                {/*Pre highlight*/}
-                <div style={{
-                    'text-align': 'left'
-                }}>
-                    <CodeMirror
-                        // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}
-                        value = {this.props.code}
-                        options = {{
-                            'mode': 'python',
-                            'theme': 'default',
-                            'lineNumbers': true,
-                            'direction': 'ltr'
-                        }}
-                        editorDidMount={(editor, value) => {
-                            this.editor = editor;
-                            // editor.setM
-                            // editor.getScrollerElement().style.minHeight = '350px'
-                            editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;
-                            editor.setSize('100%', 'auto');
-                        }}
-                    />
-                </div>
-
-
-            </div>
-        );
+        const code_mirror_dim = this.props.dimension.code_mirror;
+        return (<CodeMirror
+            // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}
+            value = {this.props.code}
+            options = {{
+                'mode': 'python',
+                'theme': 'default',
+                'lineNumbers': true,
+                'direction': 'ltr'
+            }}
+            editorDidMount={(editor, value) => {
+                this.editor = editor;
+                // editor.setM
+                // editor.getScrollerElement().style.minHeight = '350px'
+                // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;
+                editor.setSize('auto', code_mirror_dim.height);
+            }}
+        />);
+        //
+        // return (
+        //
+        //
+        //
+        //     <div id="highlighter" className={'card-body'}
+        //          style={{
+        //              'height': window.innerHeight * 0.48
+        //          }}
+        //     >
+        //         <div className={'code-block-header'}
+        //              style={{
+        //                  // 'height': '10%',
+        //                  'padding-bottom': '0%'
+        //              }}
+        //         >
+        //             <div>
+        //                 <h4 style={{
+        //                     'margin-top': '1%'
+        //                 }}>Final Code</h4>
+        //             </div>
+        //
+        //         </div>
+        //         {/*Pre highlight*/}
+        //         <div style={{
+        //             'text-align': 'left',
+        //
+        //         }} id='code-playback'
+        //              className={'code-block'}
+        //              style={{
+        //                  'height': window.innerHeight * 0.43
+        //              }}
+        //         >
+        //
+        //             <div className={'code-mirror'}>
+        //                 <CodeMirror
+        //                     // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}
+        //                     value = {this.props.code}
+        //                     options = {{
+        //                         'mode': 'python',
+        //                         'theme': 'default',
+        //                         'lineNumbers': true,
+        //                         'direction': 'ltr'
+        //                     }}
+        //                     editorDidMount={(editor, value) => {
+        //                         this.editor = editor;
+        //                         // editor.setM
+        //                         // editor.getScrollerElement().style.minHeight = '350px'
+        //                         // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;
+        //                         editor.setSize('100%', '100%');
+        //                     }}
+        //                 />
+        //
+        //             </div>
+        //
+        //         </div>
+        //
+        //
+        //     </div>
+        // );
     }
 }
 

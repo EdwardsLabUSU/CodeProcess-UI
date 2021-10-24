@@ -14,6 +14,14 @@ class CodeViz extends React.Component{
     constructor(props) {
         super(props);
         // console.log("Called constructor....")
+        this.layout_dimension = {
+            'code_div': {
+                'height': window.innerHeight - 20
+            },
+            'code_mirror': {
+                'height': window.innerHeight * 0.83
+            }
+        }
         this.state = {
             'user': null,
             'code': '',
@@ -308,19 +316,22 @@ class CodeViz extends React.Component{
     render() {
         return(
             <Grid fluid>
-                <Row>
+                <Row style={{
+                    'height': window.innerHeight - 20
+                }}>
                     {/*<Col xs={1} sm={1} md={1} lg={1} >*/}
                     {/*</Col>*/}
 
                     <div
                         // xs={11} sm={10} md={12} lg={5} xl={4}
                         className={'viz-col'}
+
                     >
                         <Row>
 
                             <div className={'card-body'} style={{
                                 'width': '100%',
-                                'height': '100%',
+                                'height': window.innerHeight - 20,
                                 'background-color': 'white'
 
                             }}>
@@ -337,23 +348,27 @@ class CodeViz extends React.Component{
 
                                         <select name="student" onChange={this.changeDropDown} style={{
                                             'float': 'left',
-                                            'margin-top': '15px',
-                                            'margin-left': '10px'
+                                            'margin-top': '20px',
+                                            'margin-left': '10px',
+                                            'margin-bottom': '27px',
+                                            'width': '150px',
+                                            // 'height': '20px',
+                                            'text-align': 'center',
+                                            'background-color': 'white',
+                                            'border-radius': '5px'
+
                                         }}>
-                                            <option value="LO1A2F01-U1-BM-task1">Student 1</option>
-                                            <option value="LO1A2F01-U1-BM-task2">Student 2</option>
-                                            <option value="LO1A2F01-U2-FP-demo">Student 3</option>
-                                            <option value="LO1A2F01-U2-FP-task4">Student 4</option>
-                                            <option value="LO1A2F01-U3-RA-task2">Student 5</option>
-                                            <option value="LO1A3F08-U4-FP-task3">Student 6</option>
-                                            <option value="LO1A3F08-U4-FP-task4">Student 7</option>
-                                            <option value="LO1A3F08-U5-WA-Task3">Student 8</option>
-                                            <option value="LO1A4F16-U6-BM-pattern">Student 9</option>
-                                            <option value="LO1A4F16-U7-RA-chessboard">Student 10</option>
-                                            <option value="LO1A7M08-TG-Unit7-main">Student 11</option>
-
-
-
+                                            <option value="LO1A2F01-U1-BM-task1">Student 1</option> {/*87750365*/}
+                                            <option value="LO1A2F01-U1-BM-task2">Student 2</option> {/*46137255*/}
+                                            <option value="LO1A2F01-U2-FP-demo">Student 3</option> {/*19667384*/}
+                                            <option value="LO1A2F01-U2-FP-task4">Student 4</option> {/*36989533*/}
+                                            <option value="LO1A2F01-U3-RA-task2">Student 5</option> {/*34618362*/}
+                                            <option value="LO1A3F08-U4-FP-task3">Student 6</option> {/*91703258*/}
+                                            <option value="LO1A3F08-U4-FP-task4">Student 7</option> {/*71542376*/}
+                                            <option value="LO1A3F08-U5-WA-Task3">Student 8</option> {/*45941528*/}
+                                            <option value="LO1A4F16-U6-BM-pattern">Student 9</option> {/*71585317*/}
+                                            <option value="LO1A4F16-U7-RA-chessboard">Student 10</option> {/*97680523*/}
+                                            <option value="LO1A7M08-TG-Unit7-main">Student 11</option> {/*65027619*/}
 
 
                                             {/*<option value="legitmate">Legitmate</option>*/}
@@ -369,6 +384,8 @@ class CodeViz extends React.Component{
 
                                         </select>
                                     </center>
+
+
                                 </div>
 
                                 {!this.state.loaded ? <img
@@ -456,6 +473,7 @@ class CodeViz extends React.Component{
                     <div
                         // xs={12} sm={10} md={12} lg={3} xl={4}
                         className={'playBack-col'}
+
                         // style={{
                         //     'width': '27%',
                         //     'margin-left':'1%',
@@ -476,18 +494,25 @@ class CodeViz extends React.Component{
                             updateHighLightDiff = {this.updateHighLightDiff}
                             diffLineNumber = {this.state.diff_line}
                             code = {this.state.code}
+                            dimension = {this.layout_dimension}
+                            finalCodeProps = {{
+                                'highLightDiff' : this.highLightDiff,
+                                'updateHighLightDiff' :this.updateHighLightDiff,
+                                'highLightToggle' : this.state.highLightDiffToggle,
+                                ...this.state
+                            }}
                         />
                         <div style={{
                             'margin-top': '1%'
                         }}>
-                            <CodeHighlighter
-                                // key={this.state.user+'-highlighter'}
-                                {...this.state}
-                                highLightDiff = {this.highLightDiff}
-                                updateHighLightDiff = {this.updateHighLightDiff}
-                                highLightToggle = {this.state.highLightDiffToggle}
+                            {/*<CodeHighlighter*/}
+                            {/*    // key={this.state.user+'-highlighter'}*/}
+                            {/*    {...this.state}*/}
+                            {/*    highLightDiff = {this.highLightDiff}*/}
+                            {/*    updateHighLightDiff = {this.updateHighLightDiff}*/}
+                            {/*    highLightToggle = {this.state.highLightDiffToggle}*/}
 
-                            />
+                            {/*/>*/}
                         </div>
 
                     </div>
