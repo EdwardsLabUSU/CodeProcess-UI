@@ -14,12 +14,15 @@ class CodeViz extends React.Component{
     constructor(props) {
         super(props);
         // console.log("Called constructor....")
+        const x = window.innerHeight - 0.02*window.innerHeight;
         this.layout_dimension = {
             'code_div': {
-                'height': window.innerHeight - 20
+                // 'height': 'auto'
+                'height': window.innerHeight - 0.02*window.innerHeight
             },
             'code_mirror': {
-                'height': window.innerHeight * 0.83
+                // 'height': '100%'
+                'height': x*0.85
             }
         }
         this.state = {
@@ -317,7 +320,6 @@ class CodeViz extends React.Component{
         return(
             <Grid fluid>
                 <Row style={{
-                    'height': window.innerHeight - 20
                 }}>
                     {/*<Col xs={1} sm={1} md={1} lg={1} >*/}
                     {/*</Col>*/}
@@ -331,7 +333,7 @@ class CodeViz extends React.Component{
 
                             <div className={'card-body'} style={{
                                 'width': '100%',
-                                'height': window.innerHeight - 20,
+                                'height': this.layout_dimension.code_div.height,
                                 'background-color': 'white'
 
                             }}>

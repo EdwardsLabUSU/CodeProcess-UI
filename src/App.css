@@ -67,14 +67,15 @@ body {
   width: 100%;
 }
 
-
-.code-block {
-  background-color: #fff;
-  overflow: auto !important;
-  position: relative;
-  resize: vertical;
-  /*margin-bottom: 2%;*/
+.CodeMirror {
+   height: 100vh;
+  /* Necessary so the scrollbar can be absolutely positioned within the wrapper on Lion. */
+  position: absolute;
+  /* This prevents unwanted scrollbars from showing up on the body and wrapper in IE. */
+  overflow: auto;
 }
+
+
 
 .code-mirror{
   /*resize: vertical;*/

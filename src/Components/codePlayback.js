@@ -263,6 +263,7 @@ class CodePlayback extends BaseIDE {
             }}>
                 <div className={'code-block-header'}
                      style={{
+                         'height': code_div_dim.height*0.08,
                          // 'height': '10%',
                          'padding-bottom': '0%'
                      }}>
@@ -399,19 +400,19 @@ class CodePlayback extends BaseIDE {
 
 
 
-            <div
-                id='code-playback'
-                className={'code-block'}
-                style={{
-                    // 'height': window.innerHeight  -15
-                    // 'height': '100%'
-                }}
-            >
+            {/*<div*/}
+            {/*    id='code-playback'*/}
+            {/*    className={'code-block'}*/}
+            {/*    style={{*/}
+            {/*        // 'height': window.innerHeight  -15*/}
+            {/*        // 'height': '100%'*/}
+            {/*    }}*/}
+            {/*>*/}
 
 
                     <Row style={{
                         'width': '100%',
-                        'height': '100%',
+                        // 'height': '100%',
                         'text-align': 'left',
                         'margin': 0
                     }}>
@@ -517,7 +518,7 @@ class CodePlayback extends BaseIDE {
                     {/*</p>*/}
 
 
-            </div>
+            {/*</div>*/}
             </div>
         )
 

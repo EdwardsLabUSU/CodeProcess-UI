@@ -110,18 +110,20 @@ class CodeHighlighter extends BaseIDE{
         const code_mirror_dim = this.props.dimension.code_mirror;
         return (<CodeMirror
             // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}
+
             value = {this.props.code}
             options = {{
                 'mode': 'python',
                 'theme': 'default',
                 'lineNumbers': true,
-                'direction': 'ltr'
+                'direction': 'ltr',
+
             }}
             editorDidMount={(editor, value) => {
                 this.editor = editor;
                 // editor.setM
                 // editor.getScrollerElement().style.minHeight = '350px'
-                // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;
+                // editor.minHeight = 0;
                 editor.setSize('auto', code_mirror_dim.height);
             }}
         />);
