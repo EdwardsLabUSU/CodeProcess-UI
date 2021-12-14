@@ -14,8 +14,8 @@ better understand the application and the code. The basic working mechanism of o
  
 1. The Keystroke logs or events are obtained from a PyCharm application using pyPhanon Plugin that we built. (You can download the plugin from marketplace).
 2. The log file is uploaded to the application at ``/upload``.
-    ![upload](../img/upload.png?raw=true "Upload")
-    ![recent-upload](../img/recent-uploads.png?raw=true "Recent Upload")
+    ![upload](img/upload.png?raw=true "Upload")
+    ![recent-upload](img/recent-uploads.png?raw=true "Recent Upload")
 3. After the file has been uploaded to the application it is sent to the API Server. The API Server saves the file to a specific folder and starts another
       process that parses the keystroke logs, identifies the files in a log, create necessary diff files, final code and other files needed by the front-end for
        the visualization, playback and highlighting purpose. For each file API Server creates following files: <br/><br/>
@@ -29,7 +29,7 @@ better understand the application and the code. The basic working mechanism of o
 5. After the upload has been processed, the front-end fetches the latest uploads and the files extracted in a drop-down menu.
 6. You can select any file from the drop-down to see the visualization and playback.
 
-![CodeProcess](../img/visualization.png?raw=true "CodeProcess")
+![CodeProcess](img/visualization.png?raw=true "CodeProcess")
 
 The uploaded and processed files are stored in a sqlite database: "database.db". You can clear the folders and delete the database files to reset the app.
 
@@ -40,7 +40,7 @@ First, download this repository and install required npm packages. <br/>
 
 <code>npm i</code>
 
-Open ``codeViz/src/config.js`` and change the API_URL to the url of your back-end server:
+Open ``/src/config.js`` and change the API_URL to the url of your back-end server:
 > You need a API Server for this app to work. So make sure your API server for code-process is up and running.
 
 By default, the API Server is hosted in localhost at port 5000.
