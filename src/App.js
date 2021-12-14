@@ -1,10 +1,11 @@
-import logo from './logo.svg';
 import './App.css';
-import CodeHighlighter from './Components/highlighter';
-import CodePlayback from './Components/codePlayback';
-import { Grid, Row, Col } from 'react-flexbox-grid';
-import DualSlider from "./Components/dualSlider";
 import CodeViz from "./Components/codeViz";
+import Upload from "./Components/upload";
+import {
+    BrowserRouter,
+    Routes,
+    Route
+} from "react-router-dom";
 
 
 
@@ -16,10 +17,14 @@ function App() {
             <div style={{
                 'margin-top': '0%'
             }}>
-
+                <BrowserRouter>
+                <Routes>
+                    <Route path="/" element={<CodeViz />} />
+                    <Route path="upload" element={<Upload />} />
+                    <Route path="*" element={<CodeViz />} />
+                </Routes>
+                </BrowserRouter>
             </div>
-
-            <CodeViz />
 
         </div>
       );

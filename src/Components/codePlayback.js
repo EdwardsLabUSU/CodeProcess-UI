@@ -2,7 +2,6 @@ import React from "react";
 import Slider from '@material-ui/core/Slider';
 import PlayCircleOutlineIcon from '@material-ui/icons/PlayCircleOutline';
 import PauseIcon from '@material-ui/icons/Pause';
-import codes from '../diff_book.csv';
 import {FastForward, FastRewind} from "@material-ui/icons";
 import {Controlled as CodeMirror} from 'react-codemirror2';
 import BaseIDE from "../lib/codeMirror";
@@ -69,7 +68,7 @@ class CodePlayback extends BaseIDE {
             }, this.updateCode);
             this.progressUpdate(progress);
             // this.props.updateHighLightDiff();
-        } else if(event.keyCode === 32) {
+        } else if (event.keyCode === 32) {
             this.setState({
                 'pause': !this.state.pause
             }, this.getCode)
@@ -84,7 +83,7 @@ class CodePlayback extends BaseIDE {
         document.removeEventListener('keydown', this.arrowKeysHandler, false);
     }
 
-    highlightDiff(){
+    highlightDiff() {
         this.clearDiffMarkers();
         const option = this.props.highLightOption;
         option.snapShot.forEach((each) => {
@@ -134,57 +133,33 @@ class CodePlayback extends BaseIDE {
         return this.props.code_blocks.slice(this.props.startIndex, this.props.endIndex + 1).length;
     }
 
-    getLineNumber(offset = 0){
-        if(this.props.diffLineNumber === null)
+    getLineNumber(offset = 0) {
+        if (this.props.diffLineNumber === null)
             return 0
         let current_pos = this.currentPosition();
         let lineNumber = this.props.diffLineNumber[current_pos + offset];
-        lineNumber = Math.max(lineNumber -1 , 0);
+        lineNumber = Math.max(lineNumber - 1, 0);
         return lineNumber;
     }
 
-    progressUpdate(progress){
+    progressUpdate(progress) {
         this.props.progressUpdate(progress);
-        if(progress !== -1) {
-           let lineNumber = this.getLineNumber();
-            if(this.state.scroll)
-            {
+        if (progress !== -1) {
+            let lineNumber = this.getLineNumber();
+            if (this.state.scroll && lineNumber) {
                 this.editor.focus();
                 this.editor.refresh();
                 this.editor.setCursor({line: lineNumber, ch: null});
-                // this.scrollToLine();
-                // Trying with selection scroll...
-                // this.editor.get
-                // this.sleep(500).then(()=>this.editor.setSelection({
-                //     line: lineNumber, ch:-1},
-                //     {line: lineNumber, ch: -1}, {'scroll': true}));
                 var rect = this.editor.getWrapperElement().getBoundingClientRect();
-                var topVisibleLine = this.editor.lineAtHeight(rect.top, "window");
-                var bottomVisibleLine = this.editor.lineAtHeight(rect.bottom, "window");
-                console.log("Visible line: ", topVisibleLine, bottomVisibleLine);
-                // let top_number =   this.editor.visualLineAtHeight(
-                //             this.editor.editor.scrollDOM.getBoundingClientRect().top
-                //         ).from;
-                // let top_number = this.editor.state.doc.lineAt(
-                //     this.editor.visualLineAtHeight(
-                //         this.editor.scrollDOM.getBoundingClientRect().top
-                //     ).from
-                // ).number;
-                //
-                console.log("Top number: ", this.editor);
-
                 this.editor.setSelection({
-                        line: lineNumber + 1, ch:-1},
-                        {line: lineNumber, ch: -1}, {'scroll': true})
-
-
-                // this.editor.scrollIntoView({line: lineNumber, char:0}, 0)
+                        line: lineNumber + 1, ch: -1
+                    },
+                    {line: lineNumber, ch: -1}, {'scroll': true})
             }
-                // this.editor.scrollTo({line: lineNumber, char:0})
         }
     }
 
-    scrollToLine(lineNumber = this.getLineNumber()){
+    scrollToLine(lineNumber = this.getLineNumber()) {
         // this.editor.scrollTo({line: lineNumber, char:0}, 0);
 
 
@@ -222,7 +197,7 @@ class CodePlayback extends BaseIDE {
                     'code': _code,
                     'progress': progress,
                     'blockLength': block_length
-                // });
+                    // });
                 }, () => this.progressUpdate(progress));
             }
             await this.sleep(this.state.delay);
@@ -263,7 +238,7 @@ class CodePlayback extends BaseIDE {
             }}>
                 <div className={'code-block-header'}
                      style={{
-                         'height': code_div_dim.height*0.08,
+                         'height': code_div_dim.height * 0.08,
                          // 'height': '10%',
                          'padding-bottom': '0%'
                      }}>
@@ -349,15 +324,13 @@ class CodePlayback extends BaseIDE {
                                     'progress': progress,
                                     'pause': true,
                                     'code': this.props.code_blocks[v]
-                                }, ()=> this.progressUpdate(progress));
+                                }, () => this.progressUpdate(progress));
                                 this.clearDiffMarkers();
-                                if(this.props.highLightOption !== null)
+                                if (this.props.highLightOption !== null)
                                     this.highlightDiff();
                             }}
                             aria-labelledby="continuous-slider"/>
                     </div>
-
-
 
 
                 </div>
@@ -399,126 +372,95 @@ class CodePlayback extends BaseIDE {
                 </div>
 
 
+                {/*<div*/}
+                {/*    id='code-playback'*/}
+                {/*    className={'code-block'}*/}
+                {/*    style={{*/}
+                {/*        // 'height': window.innerHeight  -15*/}
+                {/*        // 'height': '100%'*/}
+                {/*    }}*/}
+                {/*>*/}
 
-            {/*<div*/}
-            {/*    id='code-playback'*/}
-            {/*    className={'code-block'}*/}
-            {/*    style={{*/}
-            {/*        // 'height': window.innerHeight  -15*/}
-            {/*        // 'height': '100%'*/}
-            {/*    }}*/}
-            {/*>*/}
 
-
-                    <Row style={{
-                        'width': '100%',
-                        // 'height': '100%',
-                        'text-align': 'left',
-                        'margin': 0
+                <Row style={{
+                    'width': '100%',
+                    // 'height': '100%',
+                    'text-align': 'left',
+                    'margin': 0
+                }}>
+                    <Col style={{
+                        'width': '50%',
+                        // 'border': '1px solid black',
+                        // 'margin-right': `-1.7px`
+                        // 'border': '1px solid black'
                     }}>
-                        <Col style={{
-                            'width': '50%',
-                                // 'border': '1px solid black',
-                            // 'margin-right': `-1.7px`
-                            // 'border': '1px solid black'
-                        }}>
-                            <div className={'code-type-header'} >
-                                <center>
-                                    <p>Snapshot</p>
-                                </center>
+                        <div className={'code-type-header'}>
+                            <center>
+                                <p>Snapshot</p>
+                            </center>
 
-                            </div>
+                        </div>
 
 
-                            <CodeMirror
-                                // className={'code-mirror'}
-                                // style = {{
-                                //     'float': 'left',
-                                //     'text-align': 'left',
-                                //     'border': '5px solid black'
-                                //
-                                // }}
-                                value={this.state.code}
-                                options={{
-                                    'mode': 'python',
-                                    'theme': 'default',
-                                    'lineNumbers': true,
-                                    'direction': 'ltr',
-                                }}
-                                editorDidMount={(editor, value) => {
-                                    // this.editor = editor;
-                                    this.editor = editor;
-                                    editor.setSize('100%', code_mirror_dim.height);
-                                    // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.39 + 'px'
-                                    // editor.getScrollerElement().style.boxShadow = '0px';
-                                    // editor.setSize('200px',window.innerHeight * 0.34);
-                                    // editor.setSize('100%', (window.innerHeight * 0.34) + 'px');
-                                }}
-                                onChange={(editor, data, value) => {
-                                    // editor.focus();
-                                    // editor.setCursor({line: 5, ch: 5});
-                                }}
-                            />
+                        <CodeMirror
+                            // className={'code-mirror'}
+                            // style = {{
+                            //     'float': 'left',
+                            //     'text-align': 'left',
+                            //     'border': '5px solid black'
+                            //
+                            // }}
+                            value={this.state.code}
+                            options={{
+                                'mode': 'python',
+                                'theme': 'default',
+                                'lineNumbers': true,
+                                'direction': 'ltr',
+                            }}
+                            editorDidMount={(editor, value) => {
+                                // this.editor = editor;
+                                this.editor = editor;
+                                editor.setSize('100%', code_mirror_dim.height);
+                                // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.39 + 'px'
+                                // editor.getScrollerElement().style.boxShadow = '0px';
+                                // editor.setSize('200px',window.innerHeight * 0.34);
+                                // editor.setSize('100%', (window.innerHeight * 0.34) + 'px');
+                            }}
+                            onChange={(editor, data, value) => {
+                                // editor.focus();
+                                // editor.setCursor({line: 5, ch: 5});
+                            }}
+                        />
 
-                        </Col>
-                        <Col>
-                            <div style={{
-                                'border-left': '1px solid #000',
-                                'height': '100%',
-                                'width': '0.5%'
-                            }}></div>
+                    </Col>
+                    <Col>
+                        <div style={{
+                            'border-left': '1px solid #000',
+                            'height': '100%',
+                            'width': '0.5%'
+                        }}></div>
 
-                        </Col>
-                        {/*<hr>*/}
-                        <Col style={{
-                            'width': '49.5%',
-                            // 'float':"right"
-                            // 'margin-left': '-1px'
-                            // 'border': '1% solid black'
-                        }}>
-                            <div className={'code-type-header'} >
-                                <center>
-                                    <p>Final Code</p>
-                                </center>
-                            </div>
-
-
-                            <CodeHighlighter dimension = {this.props.dimension}
-                                             {...this.props.finalCodeProps}/>
-
-                            {/*<CodeMirror*/}
-                            {/*    // value={"APPLE IS VERY GOOD DO YOU KNOW THAT"}*/}
-
-                            {/*    value = {this.props.code}*/}
-                            {/*    options = {{*/}
-                            {/*        'mode': 'python',*/}
-                            {/*        'theme': 'default',*/}
-                            {/*        'lineNumbers': true,*/}
-                            {/*        'direction': 'ltr'*/}
-                            {/*    }}*/}
-                            {/*    editorDidMount={(editor, value) => {*/}
-                            {/*        // this.editor = editor;*/}
-                            {/*        // editor.setM*/}
-                            {/*        // editor.getScrollerElement().style.minHeight = '350px'*/}
-                            {/*        // editor.getScrollerElement().style.minHeight = window.innerHeight * 0.42;*/}
-                            {/*        // editor.setSize('100%', '100%');*/}
-                            {/*        editor.setSize('auto', code_mirror_dim.height);*/}
-                            {/*    }}*/}
-                            {/*/>*/}
-
-                        </Col>
+                    </Col>
+                    {/*<hr>*/}
+                    <Col style={{
+                        'width': '49.5%',
+                        // 'float':"right"
+                        // 'margin-left': '-1px'
+                        // 'border': '1% solid black'
+                    }}>
+                        <div className={'code-type-header'}>
+                            <center>
+                                <p>Final Code</p>
+                            </center>
+                        </div>
 
 
-                    </Row>
+                        <CodeHighlighter dimension={this.props.dimension}
+                                         {...this.props.finalCodeProps}/>
 
 
-
-                    {/*<p className={'code-text'}>*/}
-                    {/*    {this.state.code}*/}
-                    {/*</p>*/}
-
-
-            {/*</div>*/}
+                    </Col>
+                </Row>
             </div>
         )
 
